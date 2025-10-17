@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDK Log Analyzer</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📊</text></svg>">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* 語言選擇器樣式 */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .lang-option {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .lang-option.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .lang-option i {
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 語言選擇器 -->
+        <div class="language-selector">
+            <button class="lang-option" data-lang="zh-TW" onclick="setLanguage('zh-TW')">
+                <i class="fas fa-globe"></i> 繁體
+            </button>
+            <button class="lang-option" data-lang="zh-CN" onclick="setLanguage('zh-CN')">
+                <i class="fas fa-globe"></i> 简体
+            </button>
+            <button class="lang-option" data-lang="en" onclick="setLanguage('en')">
+                <i class="fas fa-globe"></i> EN
+            </button>
+        </div>
+        
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> <span data-i18n="title">SDK日誌分析器</span></h1>
+            <p data-i18n="subtitle">上傳Azure Speech SDK日誌文件，進行基本分析</p>
+        </header>
+
+        <!-- 主要內容區域 -->
+        <div class="main-content">
+            
+            <!-- 上傳區域 -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3 data-i18n="uploadTitle">拖放日誌文件到此處</h3>
+                    <p><span data-i18n="uploadOr">或</span> <button class="btn-link" onclick="document.getElementById('fileInput').click()"><span data-i18n="uploadClick">點擊選擇文件</span></button></p>
+                    <p class="upload-hint" data-i18n="uploadHint">支援 .txt 和 .log 格式</p>
+                    <input type="file" id="fileInput" accept=".txt,.log" style="display: none;">
+                </div>
+                
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText" data-i18n="uploading">正在上傳...</p>
+                </div>
+            </div>
+
+            <!-- 會話列表區域 -->
+            <div class="sessions-section" id="sessionsSection" style="display: none;">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> <span data-i18n="sessionsTitle">檢測到的會話</span></h2>
+                    <button class="btn-secondary" onclick="backToUpload()">
+                        <i class="fas fa-arrow-left"></i> <span data-i18n="backButton">返回</span>
+                    </button>
+                </div>
+                <p><span data-i18n="sessionsFile">文件</span>: <strong id="sessionsFilename"></strong></p>
+                <div class="sessions-grid" id="sessionsGrid">
+                    <!-- 會話卡片將在此處動態生成 -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 錯誤提示 -->
+    <div class="error-toast" id="errorToast" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorMessage"></span>
+        <button onclick="this.parentElement.style.display='none'" class="error-close">&times;</button>
+    </div>
+
+    <!-- 加載翻譯系統 -->
+    <script src="{{ url_for('static', filename='translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化語言系統
+            initLanguage();
+            
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.add('highlight'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('highlight'), false);
+            });
+
+            uploadArea.addEventListener('drop', handleDrop, false);
+        });
+    </script>
+</body>
+</html>

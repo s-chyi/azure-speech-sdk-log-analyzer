@@ -1,0 +1,104 @@
+
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================
+# 虛擬環境
+# ============================================
+venv/
+ENV/
+env/
+.venv
+
+# ============================================
+# 上傳檔案和日誌（重要！）
+# ============================================
+uploads/*
+!uploads/.gitkeep
+*.log
+*.txt
+# 保留必要的文件
+!requirements.txt
+!README.md
+!QUICKSTART.md
+!CHANGELOG.md
+!sample_log.txt
+
+# ============================================
+# IDE 設定
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ============================================
+# 作業系統
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ============================================
+# 測試相關
+# ============================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+.cache
+
+# ============================================
+# Playwright
+# ============================================
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+package-lock.json
+
+# ============================================
+# 其他
+# ============================================
+*.bak
+*.tmp
+temp/
+tmp/
+*.orig
+*.rej
+.mypy_cache/
+.dmypy.json
+dmypy.json

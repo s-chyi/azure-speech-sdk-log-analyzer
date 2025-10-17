@@ -1,0 +1,91 @@
+[607792]: 139ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: this=0x0000026AA40A6068; name='SPEECH-LogFilename'; value='audio_logs.txt'
+[17761]: 142ms SPX_TRACE_INFO:  thread_service.cpp:96 Started thread Background with ID [751443ll]
+[751443]: 142ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:1469 [0000026AA40A5F80]CSpxAudioStreamSession::FireSessionStartedEvent: Firing SessionStarted event: SessionId: abfb323a-23ab-42ce-b47e-ef83a560630b
+[751443]: 142ms SPX_TRACE_INFO:  thread_service.cpp:96 Started thread User with ID [431144ll]
+[751443]: 145ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: this=0x0000026AA40A6068; name='SPEECH-Region'; value='eastus'
+[751443]: 145ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:111 [0000026AA1CCE730]CSpxAudioPump::StartPump():
+[757448]: 147ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:176 [0000026AA1CCE730]CSpxAudioPump::PumpThread(): getting format from reader... 
+[607792]: 150ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 WriteBuffer: size=3200
+[751443]: 152ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:479 Start to open websocket.
+[751443]: 280ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:880 Opening websocket completed.
+[757448]: 285ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 Read: totalBytesRead=3200
+[757448]: 286ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:287 Received audio chunk: time:285ms, size:3200
+[751443]: 290ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1205 TryChangeState: recoKind/sessionState: 0/0 => 4/1
+[751443]: 292ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1463 TryChangeState: audioState/uspState: 0/0 => 1/0 (USP-START)
+[757448]: 295ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:320 read frame duration: 180 ms => sending audio buffer size: 3200
+[751443]: 298ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1463 TryChangeState: audioState/uspState: 1/0 => 2/1000
+[751443]: 300ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:540 Web socket sending message. Time: 300ms TimeInQueue: 5ms, IsBinary: 1, Path: speech.config, Size: 1024 B
+[751443]: 305ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:649 Web socket send message completed. Result: 0, SendTime: 5ms, IsBinary: 1, Path: speech.config, Size: 1024 B
+[751443]: 310ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:540 Web socket sending message. Time: 310ms TimeInQueue: 10ms, IsBinary: 1, Path: audio, Size: 3200 B
+[751443]: 318ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:649 Web socket send message completed. Result: 0, SendTime: 8ms, IsBinary: 1, Path: audio, Size: 3200 B
+[751443]: 450ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=turn.start
+[751443]: 451ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 151ms Response Message: path: turn.start
+[751443]: 452ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1463 TryChangeState: audioState/uspState: 2/1000 => 2/1200
+[607792]: 500ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 WriteBuffer: size=3200
+[757448]: 502ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 Read: totalBytesRead=3200
+[757448]: 503ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:287 Received audio chunk: time:502ms, size:3200
+[757448]: 505ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:320 read frame duration: 200 ms => sending audio buffer size: 3200
+[751443]: 508ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:2156 unacknowledgedAudioDuration = 3500 msec
+[751443]: 510ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:540 Web socket sending message. Time: 510ms TimeInQueue: 15ms, IsBinary: 1, Path: audio, Size: 3200 B
+[751443]: 520ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:649 Web socket send message completed. Result: 0, SendTime: 10ms, IsBinary: 1, Path: audio, Size: 3200 B
+[751443]: 680ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.startDetected
+[751443]: 681ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 381ms Response Message: path: speech.startDetected
+[431144]: 685ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:3245 CSpxAudioStreamSession::FireSpeechStartDetectedEvent
+[431144]: 686ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:152 DispatchEvent task started...
+[431144]: 687ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:158 No listener connected to event
+[431144]: 688ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:165 DispatchEvent task complete!
+[757448]: 750ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:320 read frame duration: 245 ms => sending audio buffer size: 3200
+[751443]: 755ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:2156 unacknowledgedAudioDuration = 5200 msec
+[751443]: 920ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.hypothesis
+[751443]: 921ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 621ms Response Message: path: speech.hypothesis
+[751443]: 922ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:245 InitIntermediateResult: resultId=12345
+[751443]: 923ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: name='RESULT-RecognitionLatencyMs'; value='623'
+[751443]: 925ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:312 Text: 你好
+[431144]: 930ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:3312 CSpxAudioStreamSession::FireResultEvent
+[431144]: 931ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:152 DispatchEvent task started...
+[431144]: 932ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:158 Created 'CSpxRecognitionEventArgs' 
+[431144]: 935ms SPX_DBG_TRACE_VERBOSE:  event_handler.cpp:165 DispatchEvent task complete!
+[751443]: 1180ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.hypothesis
+[751443]: 1181ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 881ms Response Message: path: speech.hypothesis  
+[751443]: 1185ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:312 Text: 你好世界
+[751443]: 1420ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.phrase
+[751443]: 1421ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 1121ms Response Message: path: speech.phrase
+[751443]: 1422ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: name='RESULT-RecognitionLatencyMs'; value='1122'
+[751443]: 1423ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:312 Text: 你好世界
+[751443]: 1425ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:325 RecognitionStatus: Success
+[431144]: 1428ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:3380 FireFinalResultNow: GetSite()->FireAdapterResult_FinalResult() complete!
+[757448]: 1500ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 Read: End of stream detected. read ZERO (0) bytes
+[757448]: 1501ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:380 AudioPump THREAD stopped!
+[751443]: 1505ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:2890 Have seen the end of the stream on the client, processing audio leftovers
+[751443]: 1650ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.endDetected
+[751443]: 1680ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=turn.end
+[751443]: 1690ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:690 Web socket upload rate this period was 31.2 KB/s
+[751443]: 1700ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1205 TryChangeState: recoKind/sessionState: 4/2 => 4/5
+[751443]: 1750ms SPX_DBG_TRACE_VERBOSE:  uws_web_socket.cpp:283 OnWebSocketClosed
+[751443]: 1755ms SPX_DBG_TRACE_VERBOSE:  usp_reco_engine_adapter.cpp:1205 TryChangeState: recoKind/sessionState: 4/5 => 0/0
+
+[607792]: 2000ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: this=0x0000026BB50B7068; name='SPEECH-LogFilename'; value='audio_logs2.txt'  
+[17761]: 2002ms SPX_TRACE_INFO:  thread_service.cpp:96 Started thread Background with ID [852553ll]
+[852553]: 2002ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:1469 [0000026BB50B7F90]CSpxAudioStreamSession::FireSessionStartedEvent: Firing SessionStarted event: SessionId: def45678-9abc-def0-1234-56789abcdef0
+[852553]: 2005ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:479 Start to open websocket.
+[758559]: 2008ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:176 [0000026BB1CDF840]CSpxAudioPump::PumpThread(): getting format from reader...
+[607792]: 2010ms SPX_DBG_TRACE_VERBOSE:  push_audio_input_stream.cpp:153 WriteBuffer: size=3200
+[852553]: 2150ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:880 Opening websocket completed.
+[758559]: 2155ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:320 read frame duration: 350 ms => sending audio buffer size: 3200
+[852553]: 2160ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:2156 unacknowledgedAudioDuration = 8000 msec
+[852553]: 2165ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:540 Web socket sending message. Time: 2165ms TimeInQueue: 1200ms, IsBinary: 1, Path: audio, Size: 3200 B
+[852553]: 2180ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:649 Web socket send message completed. Result: 0, SendTime: 15ms, IsBinary: 1, Path: audio, Size: 3200 B
+[852553]: 2350ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=turn.start
+[852553]: 2355ms SPX_DBG_TRACE_VERBOSE:  usp_connection.cpp:1028 TS: 345ms Response Message: path: turn.start
+[758559]: 2450ms SPX_DBG_TRACE_VERBOSE:  audio_pump.cpp:320 read frame duration: 295 ms => sending audio buffer size: 3200
+[852553]: 2455ms SPX_DBG_TRACE_VERBOSE:  audio_stream_session.cpp:2156 unacknowledgedAudioDuration = 12000 msec
+[852553]: 2680ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.startDetected
+[852553]: 2780ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.hypothesis
+[852553]: 2785ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: name='RESULT-RecognitionLatencyMs'; value='2180'
+[852553]: 2790ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:312 Text: 測試語音識別功能
+[852553]: 2950ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=speech.phrase
+[852553]: 2952ms SPX_DBG_TRACE_VERBOSE:  named_properties.h:479 ISpxNamedProperties::GetStringValue: name='RESULT-RecognitionLatencyMs'; value='2350'
+[852553]: 2955ms SPX_DBG_TRACE_VERBOSE:  reco_result.cpp:312 Text: 測試語音識別功能表現
+[852553]: 2980ms SPX_DBG_TRACE_VERBOSE:  web_socket.cpp:690 Web socket upload rate this period was 18.5 KB/s
+[852553]: 3100ms SPX_DBG_TRACE_VERBOSE:  usp_web_socket.cpp:209 USP message received. IsBinary=0, Path=turn.end
+[852553]: 3150ms SPX_DBG_TRACE_VERBOSE:  uws_web_socket.cpp:283 OnWebSocketClosed
