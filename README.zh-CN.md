@@ -25,7 +25,7 @@ Azure Speech SDK 在启用日志记录功能后，会自动生成详细的诊断
 import azure.cognitiveservices.speech as speechsdk
 
 # 启用日志记录
-speechsdk.logging.set_log_level(speechsdk.logging.LogLevel.Verbose)
+speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "LogfilePathAndName")
 ```
 
 📚 **详细文档**：[Azure Speech SDK 日志记录指南](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-use-logging?pivots=programming-language-python)

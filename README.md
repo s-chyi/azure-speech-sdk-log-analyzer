@@ -25,7 +25,7 @@ When using Azure Speech SDK, simply enable logging to automatically generate log
 import azure.cognitiveservices.speech as speechsdk
 
 # Enable logging
-speechsdk.logging.set_log_level(speechsdk.logging.LogLevel.Verbose)
+speech_config.set_property(speechsdk.PropertyId.Speech_LogFilename, "LogfilePathAndName")
 ```
 
 📚 **Detailed Documentation**: [Azure Speech SDK Logging Guide](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-use-logging?pivots=programming-language-python)
