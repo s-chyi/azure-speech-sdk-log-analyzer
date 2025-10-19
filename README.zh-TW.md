@@ -79,6 +79,7 @@ cd azure-speech-sdk-log-analyzer
 - **多線程追蹤**：精確追蹤主線程、後台線程、音頻線程等
 - **視覺化時間線**：清晰的事件時間線，支援分類篩選
 - **效能指標分析**：深度分析延遲、音頻上傳速率等關鍵指標
+- **視覺化圖表**：識別延遲時間圖表，智能顏色標記展示效能趨勢
 - **日誌下載功能**：支援完整會話日誌和按線程下載
 - **多語言支持**：繁體中文、簡體中文、英文界面
 - **響應式設計**：完美支援桌面和移動設備
@@ -155,13 +156,16 @@ sdk_log_analyzer/
 ├── app.py                 # Flask 主應用程式
 ├── log_parser.py          # 日誌解析引擎
 ├── requirements.txt       # Python 依賴
-├── README.md              # 專案文檔（本檔案）
+├── README.md              # 專案文檔（英文）
+├── README.zh-TW.md        # 專案文檔（繁體中文）
+├── README.zh-CN.md        # 專案文檔（簡體中文）
 ├── QUICKSTART.md          # 快速開始指南
 ├── CHANGELOG.md           # 更新日誌
 ├── .gitignore             # Git 忽略規則
 ├── templates/
 │   └── index.html         # 前端頁面
 ├── static/
+│   ├── chart_patch.js     # 圖表渲染邏輯
 │   ├── style.css          # 樣式文件
 │   ├── script.js          # JavaScript 邏輯
 │   └── translations.js    # 多語言翻譯
@@ -222,7 +226,7 @@ A: 請參考 [官方文檔](https://learn.microsoft.com/en-us/azure/ai-services/
 
 **作者**: Nick Shieh  
 **Email**: nickshieh@microsoft.com  
-**版本**: 1.0.0  
+**版本**: 1.1.0  
 **許可證**: MIT License
 
 ---
@@ -233,4 +237,4 @@ A: 請參考 [官方文檔](https://learn.microsoft.com/en-us/azure/ai-services/
 
 ---
 
-**最後更新**: 2025-01-16
+**最後更新**: 2025-10-19

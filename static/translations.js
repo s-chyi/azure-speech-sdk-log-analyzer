@@ -106,7 +106,72 @@ const translations = {
         
         // 通用
         'ms': 'ms',
-        'session': '會話'
+        'session': '會話',
+        
+        // 新增：連接指標
+        'connectionMetrics': '連接指標',
+        'websocketConnectionTime': 'WebSocket 連接時間',
+        'turnStartLatency': 'Turn Start 延遲',
+        'websocketConnectionTimeTooltip': '從開始連接到成功建立 WebSocket 的時間。正常：<500ms。過高表示網路握手慢或防火牆問題。',
+        'turnStartLatencyTooltip': '從第一個音頻包到收到 turn.start 的時間。正常：<1000ms。過高表示服務端響應慢。',
+        
+        // 新增：音頻處理指標
+        'audioMetrics': '音頻處理',
+        'maxUnacknowledgedAudio': '最大未確認音頻',
+        'avgFrameDuration': '平均音頻幀時長',
+        'frameRange': '音頻幀範圍',
+        'maxQueueTime': '最大隊列時間',
+        'maxUnacknowledgedAudioTooltip': '客戶端已發送但服務端尚未確認的最大音頻時長。正常：<5000ms。過高表示網路上傳瓶頸，可能導致高延遲。',
+        'avgFrameDurationTooltip': '音頻幀的平均處理時長。正常：200-250ms（16kHz）。異常值可能表示音頻輸入不穩定。',
+        'frameRangeTooltip': '音頻幀時長的最小值和最大值範圍。過大的差異表示音頻輸入速率不穩定。',
+        'maxQueueTimeTooltip': '訊息在本地隊列中等待的最長時間。正常：<100ms。過高表示本地網路擁塞。',
+        
+        // 新增：識別效能指標
+        'recognitionMetrics': '識別效能',
+        'firstHypothesisLatency': '首個識別延遲',
+        'avgRecognitionLatency': '平均識別延遲',
+        'latencyRange': '延遲範圍',
+        'firstHypothesisLatencyTooltip': '從發送第一個音頻包到收到第一個識別結果的時間（整體延遲）。',
+        'avgRecognitionLatencyTooltip': '所有識別結果的平均延遲時間。反映整體服務端處理效能。',
+        'latencyRangeTooltip': '識別延遲的最小值和最大值範圍。過大的差異可能表示服務端效能不穩定。',
+        
+        // 新增：上傳效能指標
+        'uploadMetrics': '上傳效能',
+        'avgUploadRateMetric': '平均上傳速率',
+        'avgUploadRateTooltip': 'WebSocket 的平均音頻上傳速率。16kHz 音頻應約為 32 KB/s，8kHz 約為 16 KB/s。過低表示網路頻寬不足。',
+        
+        // 狀態標籤
+        'statusNormal': '正常',
+        'statusWarning': '警告',
+        'statusCritical': '異常',
+        'notAvailable': '無資料',
+        
+        // 圖表相關
+        'latencyChart': '識別延遲時間圖',
+        'recognitionLatency': '識別延遲 (ms)',
+        
+        // 新增：配置相關翻譯
+        'recognitionConfig': '識別配置',
+        'noConfigAvailable': '無配置資訊',
+        'audioSettings': '音頻設置',
+        'recognitionSettings': '識別設置',
+        'systemSettings': '系統設置',
+        'sampleRate': '採樣率',
+        'bitsPerSample': '位元深度',
+        'channels': '聲道數',
+        'recognitionMode': '識別模式',
+        'language': '語言',
+        'autoDetectLanguages': '多語言自動識別',
+        'languageIdMode': '語言識別模式',
+        'segmentationTimeout': '靜音分段超時',
+        'region': '區域',
+        'bufferSize': 'Buffer 大小',
+        'connectionUrl': '連接 URL',
+        'userAgent': 'SDK 版本',
+        
+        // 新增：首個識別延遲相關
+        'firstRecognitionServiceLatency': '首個識別服務延遲',
+        'firstRecognitionServiceLatencyTooltip': '第一個 RESULT-RecognitionLatencyMs 的數值，代表服務端對首次識別的處理延遲（服務延遲）。'
     },
     
     'zh-CN': {
@@ -215,7 +280,72 @@ const translations = {
         
         // 通用
         'ms': 'ms',
-        'session': '会话'
+        'session': '会话',
+        
+        // 新增：连接指标
+        'connectionMetrics': '连接指标',
+        'websocketConnectionTime': 'WebSocket 连接时间',
+        'turnStartLatency': 'Turn Start 延迟',
+        'websocketConnectionTimeTooltip': '从开始连接到成功建立 WebSocket 的时间。正常：<500ms。过高表示网络握手慢或防火墙问题。',
+        'turnStartLatencyTooltip': '从第一个音频包到收到 turn.start 的时间。正常：<1000ms。过高表示服务端响应慢。',
+        
+        // 新增：音频处理指标
+        'audioMetrics': '音频处理',
+        'maxUnacknowledgedAudio': '最大未确认音频',
+        'avgFrameDuration': '平均音频帧时长',
+        'frameRange': '音频帧范围',
+        'maxQueueTime': '最大队列时间',
+        'maxUnacknowledgedAudioTooltip': '客户端已发送但服务端尚未确认的最大音频时长。正常：<5000ms。过高表示网络上传瓶颈，可能导致高延迟。',
+        'avgFrameDurationTooltip': '音频帧的平均处理时长。正常：200-250ms（16kHz）。异常值可能表示音频输入不稳定。',
+        'frameRangeTooltip': '音频帧时长的最小值和最大值范围。过大的差异表示音频输入速率不稳定。',
+        'maxQueueTimeTooltip': '消息在本地队列中等待的最长时间。正常：<100ms。过高表示本地网络拥塞。',
+        
+        // 新增：识别性能指标
+        'recognitionMetrics': '识别性能',
+        'firstHypothesisLatency': '首个识别延迟',
+        'avgRecognitionLatency': '平均识别延迟',
+        'latencyRange': '延迟范围',
+        'firstHypothesisLatencyTooltip': '从发送第一个音频包到收到第一个识别结果的时间（整体延迟）。',
+        'avgRecognitionLatencyTooltip': '所有识别结果的平均延迟时间。反映整体服务端处理性能。',
+        'latencyRangeTooltip': '识别延迟的最小值和最大值范围。过大的差异可能表示服务端性能不稳定。',
+        
+        // 新增：上传性能指标
+        'uploadMetrics': '上传性能',
+        'avgUploadRateMetric': '平均上传速率',
+        'avgUploadRateTooltip': 'WebSocket 的平均音频上传速率。16kHz 音频应约为 32 KB/s，8kHz 约为 16 KB/s。过低表示网络带宽不足。',
+        
+        // 状态标签
+        'statusNormal': '正常',
+        'statusWarning': '警告',
+        'statusCritical': '异常',
+        'notAvailable': '无数据',
+        
+        // 图表相关
+        'latencyChart': '识别延迟时间图',
+        'recognitionLatency': '识别延迟 (ms)',
+        
+        // 新增：配置相关翻译
+        'recognitionConfig': '识别配置',
+        'noConfigAvailable': '无配置信息',
+        'audioSettings': '音频设置',
+        'recognitionSettings': '识别设置',
+        'systemSettings': '系统设置',
+        'sampleRate': '采样率',
+        'bitsPerSample': '位深度',
+        'channels': '声道数',
+        'recognitionMode': '识别模式',
+        'language': '语言',
+        'autoDetectLanguages': '多语言自动识别',
+        'languageIdMode': '语言识别模式',
+        'segmentationTimeout': '静音分段超时',
+        'region': '区域',
+        'bufferSize': 'Buffer 大小',
+        'connectionUrl': '连接 URL',
+        'userAgent': 'SDK 版本',
+        
+        // 新增：首个识别延迟相关
+        'firstRecognitionServiceLatency': '首个识别服务延迟',
+        'firstRecognitionServiceLatencyTooltip': '第一个 RESULT-RecognitionLatencyMs 的数值，代表服务端对首次识别的处理延迟（服务延遲）。'
     },
     
     'en': {
@@ -324,7 +454,72 @@ const translations = {
         
         // Common
         'ms': 'ms',
-        'session': 'Session'
+        'session': 'Session',
+        
+        // New: Connection Metrics
+        'connectionMetrics': 'Connection Metrics',
+        'websocketConnectionTime': 'WebSocket Connection Time',
+        'turnStartLatency': 'Turn Start Latency',
+        'websocketConnectionTimeTooltip': 'Time from connection start to WebSocket establishment. Normal: <500ms. High values indicate slow network handshake or firewall issues.',
+        'turnStartLatencyTooltip': 'Time from first audio packet to turn.start response. Normal: <1000ms. High values indicate slow server response.',
+        
+        // New: Audio Processing Metrics
+        'audioMetrics': 'Audio Processing',
+        'maxUnacknowledgedAudio': 'Max Unacknowledged Audio',
+        'avgFrameDuration': 'Avg Frame Duration',
+        'frameRange': 'Frame Duration Range',
+        'maxQueueTime': 'Max Queue Time',
+        'maxUnacknowledgedAudioTooltip': 'Maximum duration of audio sent but not yet acknowledged by server. Normal: <5000ms. High values indicate network upload bottleneck causing high latency.',
+        'avgFrameDurationTooltip': 'Average audio frame processing duration. Normal: 200-250ms (16kHz). Abnormal values may indicate unstable audio input.',
+        'frameRangeTooltip': 'Min and max audio frame duration range. Large variance indicates unstable audio input rate.',
+        'maxQueueTimeTooltip': 'Maximum time messages waited in local queue. Normal: <100ms. High values indicate local network congestion.',
+        
+        // New: Recognition Performance Metrics
+        'recognitionMetrics': 'Recognition Performance',
+        'firstHypothesisLatency': 'First Hypothesis Latency',
+        'avgRecognitionLatency': 'Avg Recognition Latency',
+        'latencyRange': 'Latency Range',
+        'firstHypothesisLatencyTooltip': 'Time from first audio packet to first recognition result (overall latency).',
+        'avgRecognitionLatencyTooltip': 'Average latency of all recognition results. Reflects overall server processing performance.',
+        'latencyRangeTooltip': 'Min and max recognition latency range. Large variance may indicate unstable server performance.',
+        
+        // New: Upload Performance Metrics
+        'uploadMetrics': 'Upload Performance',
+        'avgUploadRateMetric': 'Avg Upload Rate',
+        'avgUploadRateTooltip': 'Average audio upload rate via WebSocket. Should be ~32 KB/s for 16kHz, ~16 KB/s for 8kHz. Low values indicate insufficient network bandwidth.',
+        
+        // Status Labels
+        'statusNormal': 'Normal',
+        'statusWarning': 'Warning',
+        'statusCritical': 'Critical',
+        'notAvailable': 'N/A',
+        
+        // Chart Related
+        'latencyChart': 'Recognition Latency Chart',
+        'recognitionLatency': 'Recognition Latency (ms)',
+        
+        // New: Configuration Related
+        'recognitionConfig': 'Recognition Configuration',
+        'noConfigAvailable': 'No configuration available',
+        'audioSettings': 'Audio Settings',
+        'recognitionSettings': 'Recognition Settings',
+        'systemSettings': 'System Settings',
+        'sampleRate': 'Sample Rate',
+        'bitsPerSample': 'Bits Per Sample',
+        'channels': 'Channels',
+        'recognitionMode': 'Recognition Mode',
+        'language': 'Language',
+        'autoDetectLanguages': 'Auto Detect Languages',
+        'languageIdMode': 'Language ID Mode',
+        'segmentationTimeout': 'Segmentation Timeout',
+        'region': 'Region',
+        'bufferSize': 'Buffer Size',
+        'connectionUrl': 'Connection URL',
+        'userAgent': 'SDK Version',
+        
+        // New: First Recognition Latency
+        'firstRecognitionServiceLatency': 'First Recognition Service Latency',
+        'firstRecognitionServiceLatencyTooltip': 'The first RESULT-RecognitionLatencyMs value, representing the service processing latency for the first recognition (service latency).'
     }
 };
 

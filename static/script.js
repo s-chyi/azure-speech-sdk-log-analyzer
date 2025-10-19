@@ -184,15 +184,149 @@ function displaySessionDetails(sessionId, sessionDetails, threadAnalysis) {
     
     detailSection.innerHTML = generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis);
     detailSection.style.display = 'block';
+    
+    // 渲染延遲圖表（如果有數據）
+    const metrics = sessionDetails.performance_metrics || {};
+    if (metrics.latency_timeline && metrics.latency_timeline.length > 0) {
+        // 延遲渲染圖表，確保 canvas 元素已存在
+        setTimeout(() => renderLatencyChart(metrics.latency_timeline), 100);
+    }
+}
+
+// 渲染延遲時間圖表
+function renderLatencyChart(latencyTimeline) {
+    const canvas = document.getElementById('latencyChart');
+    if (!canvas) {
+        console.error('Canvas element not found');
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    
+    // 準備數據
+    const labels = latencyTimeline.map(item => `#${item.index + 1}`);
+    const data = latencyTimeline.map(item => item.latency);
+    
+    // 根據閾值標記顏色
+    const backgroundColors = data.map(value => {
+        if (value > 5000) return 'rgba(220, 53, 69, 0.6)';      // 紅色：異常
+        if (value > 2000) return 'rgba(255, 193, 7, 0.6)';      // 黃色：警告
+        return 'rgba(40, 167, 69, 0.6)';                         // 綠色：正常
+    });
+    
+    const borderColors = data.map(value => {
+        if (value > 5000) return 'rgb(220, 53, 69)';
+        if (value > 2000) return 'rgb(255, 193, 7)';
+        return 'rgb(40, 167, 69)';
+    });
+    
+    // 創建圖表
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: t('recognitionLatency'),
+                data: data,
+                backgroundColor: backgroundColors,
+                borderColor: 'rgb(75, 192, 192)',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: backgroundColors,
+                pointBorderColor: borderColors,
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const item = latencyTimeline[context.dataIndex];
+                            return [
+                                `延遲: ${context.parsed.y} ms`,
+                                `時間戳: ${item.timestamp} ms`,
+                                `狀態: ${context.parsed.y > 5000 ? '異常' : context.parsed.y > 2000 ? '警告' : '正常'}`
+                            ];
+                        }
+                    }
+                },
+                annotation: {
+                    annotations: {
+                        warning: {
+                            type: 'line',
+                            yMin: 2000,
+                            yMax: 2000,
+                            borderColor: 'rgba(255, 193, 7, 0.5)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: '警告閾值 (2000ms)',
+                                enabled: true,
+                                position: 'end'
+                            }
+                        },
+                        critical: {
+                            type: 'line',
+                            yMin: 5000,
+                            yMax: 5000,
+                            borderColor: 'rgba(220, 53, 69, 0.5)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            label: {
+                                content: '異常閾值 (5000ms)',
+                                enabled: true,
+                                position: 'end'
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '延遲時間 (ms)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' ms';
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: '識別順序'
+                    }
+                }
+            }
+        }
+    });
 }
 
 // 生成會話詳情 HTML
 function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
     const basicInfo = sessionDetails.basic_info || {};
+    const config = sessionDetails.recognition_config || {};  // 新增：配置信息
     const metrics = sessionDetails.performance_metrics || {};
     const threads = threadAnalysis.thread_summary || {};
     const timeline = sessionDetails.timeline || [];
-    const errors = sessionDetails.error_analysis || [];
+    const errors = sessionDetails.error_analysis || {};
     const recognitionResults = sessionDetails.recognition_results || [];
 
     return `
@@ -210,7 +344,7 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
         
         <div class="detail-content">
             <div class="detail-grid">
-                <!-- Base Information -->
+                <!-- Base Information - 只顯示會話ID -->
                 <div class="detail-card">
                     <h3><i class="fas fa-info-circle"></i> ${t('basicInfo')}</h3>
                     <div class="info-grid">
@@ -218,50 +352,19 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                             <label>${t('sessionId')}:</label>
                             <span class="session-id-full">${sessionId}</span>
                         </div>
-                        <div class="info-item">
-                            <label>${t('totalLines')}:</label>
-                            <span>${basicInfo.total_lines || 0}</span>
-                        </div>
-                        ${basicInfo.duration ? `
-                        <div class="info-item">
-                            <label>${t('duration')}:</label>
-                            <span>${basicInfo.duration} ${t('ms')}</span>
-                        </div>
-                        ` : ''}
-                        ${basicInfo.start_time ? `
-                        <div class="info-item">
-                            <label>${t('startTime')}:</label>
-                            <span>${basicInfo.start_time} ${t('ms')}</span>
-                        </div>
-                        ` : ''}
                     </div>
                 </div>
 
-                <!-- Performance Metrics -->
-                <div class="detail-card">
+                <!-- Recognition Configuration - 新增配置信息卡片 -->
+                <div class="detail-card full-width">
+                    <h3><i class="fas fa-cogs"></i> ${t('recognitionConfig')}</h3>
+                    ${generateRecognitionConfigHTML(config)}
+                </div>
+
+                <!-- Enhanced Performance Metrics -->
+                <div class="detail-card full-width">
                     <h3><i class="fas fa-tachometer-alt"></i> ${t('performanceMetrics')}</h3>
-                    <div class="metrics-grid">
-                        <div class="metric-item">
-                            <span class="metric-value">${metrics.websocket_messages || 0}</span>
-                            <span class="metric-label">${t('websocketMessages')}</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-value">${metrics.audio_chunks || 0}</span>
-                            <span class="metric-label">${t('audioChunks')}</span>
-                        </div>
-                        ${metrics.avg_upload_rate ? `
-                        <div class="metric-item">
-                            <span class="metric-value">${metrics.avg_upload_rate.toFixed(2)}</span>
-                            <span class="metric-label">${t('avgUploadRate')}</span>
-                        </div>
-                        ` : ''}
-                        ${metrics.avg_recognition_latency ? `
-                        <div class="metric-item">
-                            <span class="metric-value">${metrics.avg_recognition_latency.toFixed(0)}</span>
-                            <span class="metric-label">${t('avgLatency')}</span>
-                        </div>
-                        ` : ''}
-                    </div>
+                    ${generateEnhancedMetrics(metrics)}
                 </div>
 
                 <!-- Thread Analysis -->
@@ -269,6 +372,14 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                     <h3><i class="fas fa-sitemap"></i> ${t('threadAnalysis')}</h3>
                     ${generateThreadsTable(threads)}
                 </div>
+
+                <!-- Latency Chart -->
+                ${metrics.latency_timeline && metrics.latency_timeline.length > 0 ? `
+                <div class="detail-card full-width">
+                    <h3><i class="fas fa-chart-line"></i> <span data-i18n="latencyChart">${t('latencyChart')}</span></h3>
+                    <canvas id="latencyChart" height="80"></canvas>
+                </div>
+                ` : ''}
 
                 <!-- Recognition Results -->
                 ${recognitionResults.length > 0 ? `
@@ -322,6 +433,114 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                     </div>
                 </div>
                 ` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 生成識別配置 HTML
+function generateRecognitionConfigHTML(config) {
+    if (!config || (!config.audio && !config.recognition && !config.system)) {
+        return `<p class="no-config">${t('noConfigAvailable')}</p>`;
+    }
+
+    const audio = config.audio || {};
+    const recognition = config.recognition || {};
+    const system = config.system || {};
+
+    return `
+        <div class="config-grid">
+            <!-- 音頻設置 -->
+            <div class="config-section">
+                <h4><i class="fas fa-headphones"></i> ${t('audioSettings')}</h4>
+                <div class="config-items">
+                    ${audio.sample_rate ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('sampleRate')}:</span>
+                            <span class="config-value">${audio.sample_rate} Hz</span>
+                        </div>
+                    ` : ''}
+                    ${audio.bits_per_sample ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('bitsPerSample')}:</span>
+                            <span class="config-value">${audio.bits_per_sample} bit</span>
+                        </div>
+                    ` : ''}
+                    ${audio.channels ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('channels')}:</span>
+                            <span class="config-value">${audio.channels}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- 識別設置 -->
+            <div class="config-section">
+                <h4><i class="fas fa-microphone-alt"></i> ${t('recognitionSettings')}</h4>
+                <div class="config-items">
+                    ${recognition.mode ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('recognitionMode')}:</span>
+                            <span class="config-value">${recognition.mode}</span>
+                        </div>
+                    ` : ''}
+                    ${recognition.language ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('language')}:</span>
+                            <span class="config-value">${recognition.language}</span>
+                        </div>
+                    ` : ''}
+                    ${recognition.auto_detect_languages ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('autoDetectLanguages')}:</span>
+                            <span class="config-value">${recognition.auto_detect_languages}</span>
+                        </div>
+                    ` : ''}
+                    ${recognition.language_id_mode ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('languageIdMode')}:</span>
+                            <span class="config-value">${recognition.language_id_mode}</span>
+                        </div>
+                    ` : ''}
+                    ${recognition.segmentation_timeout ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('segmentationTimeout')}:</span>
+                            <span class="config-value">${recognition.segmentation_timeout} ms</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- 系統設置 -->
+            <div class="config-section">
+                <h4><i class="fas fa-server"></i> ${t('systemSettings')}</h4>
+                <div class="config-items">
+                    ${system.region ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('region')}:</span>
+                            <span class="config-value">${system.region}</span>
+                        </div>
+                    ` : ''}
+                    ${system.buffer_size ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('bufferSize')}:</span>
+                            <span class="config-value">${system.buffer_size} ms</span>
+                        </div>
+                    ` : ''}
+                    ${system.connection_url ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('connectionUrl')}:</span>
+                            <span class="config-value config-url">${system.connection_url}</span>
+                        </div>
+                    ` : ''}
+                    ${system.user_agent ? `
+                        <div class="config-item">
+                            <span class="config-label">${t('userAgent')}:</span>
+                            <span class="config-value config-user-agent">${system.user_agent}</span>
+                        </div>
+                    ` : ''}
+                </div>
             </div>
         </div>
     `;
@@ -709,6 +928,181 @@ function showError(message) {
     setTimeout(() => {
         errorToast.style.display = 'none';
     }, foundSolution ? 8000 : 5000);
+}
+
+// 生成增強的效能指標顯示（優化為 2x2 佈局）
+function generateEnhancedMetrics(metrics) {
+    console.log('[DEBUG] Generating metrics with data:', metrics);
+    
+    return `
+        <div class="metrics-grid-2x2">
+            <!-- 左上：連接與通訊 -->
+            <div class="metric-category">
+                <h4><i class="fas fa-plug"></i> ${t('connectionMetrics')}</h4>
+                <div class="metric-list">
+                    ${createMetricWithTooltip(
+                        'websocketConnectionTime',
+                        metrics.websocket_connection_time,
+                        'ms',
+                        'websocketConnectionTimeTooltip',
+                        {warning: 500, critical: 1000}
+                    )}
+                    ${createMetricWithTooltip(
+                        'turnStartLatency',
+                        metrics.turn_start_latency,
+                        'ms',
+                        'turnStartLatencyTooltip',
+                        {warning: 1000, critical: 3000}
+                    )}
+                    ${createMetricWithTooltip(
+                        'avgUploadRateMetric',
+                        metrics.avg_upload_rate,
+                        'KB/s',
+                        'avgUploadRateTooltip',
+                        null
+                    )}
+                    ${createSimpleMetric('websocketMessages', metrics.websocket_messages || 0, '')}
+                </div>
+            </div>
+            
+            <!-- 右上：識別效能 -->
+            <div class="metric-category">
+                <h4><i class="fas fa-brain"></i> ${t('recognitionMetrics')}</h4>
+                <div class="metric-list">
+                    ${createMetricWithTooltip(
+                        'firstHypothesisLatency',
+                        metrics.first_hypothesis_latency,
+                        'ms',
+                        'firstHypothesisLatencyTooltip',
+                        {warning: 2000, critical: 5000}
+                    )}
+                    ${createMetricWithTooltip(
+                        'firstRecognitionServiceLatency',
+                        metrics.first_recognition_service_latency,
+                        'ms',
+                        'firstRecognitionServiceLatencyTooltip',
+                        {warning: 1000, critical: 2000}
+                    )}
+                    ${createMetricWithTooltip(
+                        'avgRecognitionLatency',
+                        metrics.avg_recognition_latency,
+                        'ms',
+                        'avgRecognitionLatencyTooltip',
+                        {warning: 2000, critical: 5000}
+                    )}
+                    ${metrics.min_recognition_latency && metrics.max_recognition_latency ? 
+                        createSimpleMetric('latencyRange', `${metrics.min_recognition_latency}-${metrics.max_recognition_latency}`, 'ms')
+                    : ''}
+                </div>
+            </div>
+            
+            <!-- 左下：音頻處理 -->
+            <div class="metric-category">
+                <h4><i class="fas fa-volume-up"></i> ${t('audioMetrics')}</h4>
+                <div class="metric-list">
+                    ${createSimpleMetric('audioChunks', metrics.audio_chunks || 0, '')}
+                    ${createMetricWithTooltip(
+                        'avgFrameDuration',
+                        metrics.avg_frame_duration,
+                        'ms',
+                        'avgFrameDurationTooltip',
+                        null
+                    )}
+                    ${metrics.min_frame_duration && metrics.max_frame_duration ? 
+                        createSimpleMetric('frameRange', `${metrics.min_frame_duration}-${metrics.max_frame_duration}`, 'ms')
+                    : ''}
+                </div>
+            </div>
+            
+            <!-- 右下：潛在問題指標 -->
+            <div class="metric-category metric-category-warning">
+                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ 關鍵診斷指標</h4>
+                <div class="metric-list">
+                    ${createMetricWithTooltip(
+                        'maxUnacknowledgedAudio',
+                        metrics.max_unacknowledged_audio,
+                        'ms',
+                        'maxUnacknowledgedAudioTooltip',
+                        {warning: 5000, critical: 10000}
+                    )}
+                    ${createMetricWithTooltip(
+                        'maxQueueTime',
+                        metrics.max_queue_time,
+                        'ms',
+                        'maxQueueTimeTooltip',
+                        {warning: 100, critical: 500}
+                    )}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// 創建簡單指標（無 tooltip）
+function createSimpleMetric(labelKey, value, unit) {
+    return `
+        <div class="metric-item metric-normal">
+            <div class="metric-header">
+                <span class="metric-label">${t(labelKey)}</span>
+            </div>
+            <div class="metric-value-container">
+                <span class="metric-value">${value}</span>
+                ${unit ? `<span class="metric-unit">${unit}</span>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 創建帶 Tooltip 的指標項
+function createMetricWithTooltip(labelKey, value, unit, tooltipKey, thresholds) {
+    // 如果沒有值，顯示 N/A
+    if (value === null || value === undefined) {
+        return `
+            <div class="metric-item metric-na">
+                <div class="metric-header">
+                    <span class="metric-label">${t(labelKey)}</span>
+                    <i class="fas fa-info-circle metric-tooltip" title="${t(tooltipKey)}"></i>
+                </div>
+                <div class="metric-value-container">
+                    <span class="metric-value">${t('notAvailable')}</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 判斷狀態
+    const status = getMetricStatus(value, thresholds);
+    const statusClass = `metric-${status}`;
+    
+    return `
+        <div class="metric-item ${statusClass}">
+            <div class="metric-header">
+                <span class="metric-label">${t(labelKey)}</span>
+                <i class="fas fa-info-circle metric-tooltip" title="${t(tooltipKey)}"></i>
+            </div>
+            <div class="metric-value-container">
+                <span class="metric-value">${typeof value === 'number' ? value.toFixed(value < 10 ? 2 : 0) : value}</span>
+                ${unit ? `<span class="metric-unit">${unit}</span>` : ''}
+            </div>
+        </div>
+    `;
+}
+
+// 根據閾值判斷指標狀態
+function getMetricStatus(value, thresholds) {
+    if (!thresholds || value === null || value === undefined) {
+        return 'normal';
+    }
+    
+    if (value > thresholds.critical) {
+        return 'critical';
+    }
+    
+    if (value > thresholds.warning) {
+        return 'warning';
+    }
+    
+    return 'normal';
 }
 
 // 文件載入時初始化

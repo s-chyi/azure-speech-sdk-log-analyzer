@@ -79,6 +79,7 @@ cd azure-speech-sdk-log-analyzer
 - **多线程追踪**：精确追踪主线程、后台线程、音频线程等
 - **可视化时间线**：清晰的事件时间线，支持分类筛选
 - **性能指标分析**：深度分析延迟、音频上传速率等关键指标
+- **可视化图表**：识别延迟时间图表，智能颜色标记展示性能趋势
 - **日志下载功能**：支持完整会话日志和按线程下载
 - **多语言支持**：繁体中文、简体中文、英文界面
 - **响应式设计**：完美支持桌面和移动设备
@@ -155,15 +156,16 @@ sdk_log_analyzer/
 ├── app.py                 # Flask 主应用程序
 ├── log_parser.py          # 日志解析引擎
 ├── requirements.txt       # Python 依赖
-├── README.md              # 项目文档（繁体中文）
+├── README.md              # 项目文档（英文）
+├── README.zh-TW.md        # 项目文档（繁体中文）
 ├── README.zh-CN.md        # 项目文档（简体中文）
-├── README.en.md           # 项目文档（英文）
 ├── QUICKSTART.md          # 快速开始指南
 ├── CHANGELOG.md           # 更新日志
 ├── .gitignore             # Git 忽略规则
 ├── templates/
 │   └── index.html         # 前端页面
 ├── static/
+│   ├── chart_patch.js     # 图表渲染逻辑
 │   ├── style.css          # 样式文件
 │   ├── script.js          # JavaScript 逻辑
 │   └── translations.js    # 多语言翻译
@@ -224,7 +226,7 @@ A: 请参考 [官方文档](https://learn.microsoft.com/en-us/azure/ai-services/
 
 **作者**: Nick Shieh  
 **Email**: nickshieh@microsoft.com  
-**版本**: 1.0.0  
+**版本**: 1.1.0  
 **许可证**: MIT License
 
 ---
@@ -235,4 +237,4 @@ A: 请参考 [官方文档](https://learn.microsoft.com/en-us/azure/ai-services/
 
 ---
 
-**最后更新**: 2025-01-16
+**最后更新**: 2025-10-19

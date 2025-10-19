@@ -119,9 +119,13 @@
         <button onclick="this.parentElement.style.display='none'" class="error-close">&times;</button>
     </div>
 
+    <!-- Chart.js for latency visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
     <!-- 加載翻譯系統 -->
     <script src="{{ url_for('static', filename='translations.js') }}"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='chart_patch.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化語言系統

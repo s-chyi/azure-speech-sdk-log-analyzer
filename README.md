@@ -79,6 +79,7 @@ Double-click **`update.bat`** to update to the latest version
 - **Multi-Thread Tracking**: Precisely tracks main thread, background thread, audio thread, etc.
 - **Visual Timeline**: Clear event timeline with category filtering
 - **Performance Metrics Analysis**: In-depth analysis of latency, audio upload rate, and other key metrics
+- **Visual Charts**: Recognition latency chart with intelligent color coding for performance trends
 - **Log Download**: Supports full session logs and per-thread downloads
 - **Multi-Language Support**: Traditional Chinese, Simplified Chinese, and English interfaces
 - **Responsive Design**: Perfect support for desktop and mobile devices
@@ -164,6 +165,7 @@ sdk_log_analyzer/
 ├── templates/
 │   └── index.html         # Frontend page
 ├── static/
+│   ├── chart_patch.js     # Chart rendering logic
 │   ├── style.css          # Stylesheet
 │   ├── script.js          # JavaScript logic
 │   └── translations.js    # Multi-language translations
@@ -224,7 +226,7 @@ Issues and Pull Requests are welcome!
 
 **Author**: Nick Shieh  
 **Email**: nickshieh@microsoft.com  
-**Version**: 1.0.0  
+**Version**: 1.1.0  
 **License**: MIT License
 
 ---
@@ -235,4 +237,4 @@ Thanks to all developers who use and contribute to this project!
 
 ---
 
-**Last Updated**: 2025-01-16
+**Last Updated**: 2025-10-19

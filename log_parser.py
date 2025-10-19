@@ -44,37 +44,39 @@ class LogParser:
             'state_change': re.compile(r'TryChangeState: recoKind/sessionState: (\d+)/(\d+) => (\d+)/(\d+)'),
             'adapter_state': re.compile(r'TryChangeState: audioState/uspState: (\d+)/(\d+) => (\d+)/(\d+)'),
             
-            # WebSocket 連接和通信
+            # WebSocket 連接和通信（簡化匹配）
             'websocket_start': re.compile(r'Start to open websocket'),
             'websocket_opened': re.compile(r'Opening websocket completed|OnWebSocketOpened'),
             'websocket_closed': re.compile(r'OnWebSocketClosed'),
-            'websocket_send': re.compile(r'Web socket sending message\. Time: .*?TimeInQueue:\s*(\d+)ms.*?Size:\s*(\d+)\s*B'),
-            'websocket_send_complete': re.compile(r'Web socket send message completed\. Result: (\d+), SendTime: (\d+)ms'),
-            'websocket_message_received': re.compile(r'USP message received\. IsBinary=\d+, Path=(.+)'),
+            'websocket_send': re.compile(r'Web socket sending message'),
+            'websocket_send_complete': re.compile(r'Web socket send message completed'),
+            'websocket_message_received': re.compile(r'USP message received'),
             
-            # 音頻處理相關
-            'write_buffer': re.compile(r'WriteBuffer:\s*size=(\d+)'),
-            'audio_chunk_received': re.compile(r'Received audio chunk: time:.*?size:\s*(\d+)'),
+            # 音頻處理相關（簡化匹配）
+            'write_buffer': re.compile(r'WriteBuffer:'),
+            'audio_chunk_received': re.compile(r'Received audio chunk:'),
             'read_frame_duration': re.compile(r'read frame duration:\s*(\d+)\s*ms'),
             'audio_pump_read': re.compile(r'Read: totalBytesRead=(\d+)'),
             'audio_end_detected': re.compile(r'Read: End of stream detected|read ZERO \(0\) bytes'),
             
-            # 效能指標
+            # 效能指標詳細提取
             'unacknowledged_audio': re.compile(r'unacknowledgedAudioDuration\s*=\s*(\d+)\s*msec'),
             'upload_rate': re.compile(r'Web socket upload rate.*?(\d+\.?\d*)\s*KB/s'),
-            'recognition_latency': re.compile(r'RESULT-RecognitionLatencyMs.*?value=\'(\d+)\''),
+            'recognition_latency': re.compile(r"name='RESULT-RecognitionLatencyMs';\s*value='(\d+)'"),
             'time_in_queue': re.compile(r'TimeInQueue:\s*(\d+)ms'),
+            'turn_start_ts': re.compile(r'TS:(\d+)\s+Response Message: path: turn\.start'),
+            'first_hypothesis_ts': re.compile(r'TS:(\d+)\s+Response Message: path: speech\.hypothesis'),
             
             # 語音識別事件
             'turn_start': re.compile(r'path:\s*turn\.start'),
             'turn_end': re.compile(r'path:\s*turn\.end'),
             'speech_start_detected': re.compile(r'path:\s*speech\.startDetected'),
             'speech_end_detected': re.compile(r'path:\s*speech\.endDetected'),
-            'speech_hypothesis': re.compile(r'path:\s*speech\.hypothesis'),
-            'speech_phrase': re.compile(r'path:\s*speech\.phrase'),
+            'speech_hypothesis': re.compile(r'path:\s*speech\.hypothesis|Response:\s*Speech\.Hypothesis\s+message', re.IGNORECASE),
+            'speech_phrase': re.compile(r'path:\s*speech\.phrase|Response:\s*Speech\.Phrase\s+message', re.IGNORECASE),
             
-            # 文本提取
-            'recognition_text': re.compile(r'Text:\s*([^,\n\r]+)'),
+            # 文本提取（簡化為更可靠的模式）
+            'recognition_text': re.compile(r'Text:\s+(.+?)(?:\s*$)', re.IGNORECASE),
             'recognition_status': re.compile(r'RecognitionStatus:\s*(\w+)'),
             'confidence_score': re.compile(r'Confidence:\s*(\d+\.?\d*)'),
             'duration_info': re.compile(r'Duration:\s*(\d+)'),
@@ -115,16 +117,43 @@ class LogParser:
     def get_session_details(self, session_id: str) -> Dict[str, Any]:
         """獲取特定會話的詳細信息"""
         try:
-            # 獲取該會話的所有相關行
-            session_lines = self._extract_session_lines(session_id)
+            # 使用完整的會話日誌內容（包括所有相關線程）
+            full_session_log = self.get_session_log_content(session_id)
+            
+            # 將日誌內容轉換為 (line_num, line) 格式
+            session_lines = []
+            for i, line in enumerate(full_session_log.split('\n'), 1):
+                if line.strip():
+                    session_lines.append((i, line.strip()))
+            
             if not session_lines:
                 return {'error': f'找不到會話 {session_id} 的詳細信息'}
             
+            print(f"[DEBUG] Extracted {len(session_lines)} lines for session {session_id}")
+            
             # 分析會話詳細信息
+            perf_metrics = self._analyze_performance_metrics(session_lines)
+            
+            # 調試日誌：打印提取的指標
+            print(f"[DEBUG] Session {session_id} metrics:")
+            print(f"  - websocket_messages: {perf_metrics.get('websocket_messages', 'N/A')}")
+            print(f"  - audio_chunks: {perf_metrics.get('audio_chunks', 'N/A')}")
+            print(f"  - websocket_connection_time: {perf_metrics.get('websocket_connection_time', 'N/A')}")
+            print(f"  - turn_start_latency: {perf_metrics.get('turn_start_latency', 'N/A')}")
+            print(f"  - first_hypothesis_latency: {perf_metrics.get('first_hypothesis_latency', 'N/A')}")
+            print(f"  - max_unacknowledged_audio: {perf_metrics.get('max_unacknowledged_audio', 'N/A')}")
+            
+            # 使用簡單方式獲取基本資訊（從包含 SessionId 的行）
+            simple_session_lines = self._extract_session_lines(session_id)
+            
+            # 提取識別配置信息
+            recognition_config = self._extract_recognition_config(session_lines)
+            
             details = {
                 'session_id': session_id,
-                'basic_info': self._analyze_basic_info(session_lines),
-                'performance_metrics': self._analyze_performance_metrics(session_lines),
+                'basic_info': self._analyze_basic_info(simple_session_lines) if simple_session_lines else {},
+                'recognition_config': recognition_config,  # 新增：識別配置
+                'performance_metrics': perf_metrics,
                 'recognition_results': self._analyze_recognition_results(session_lines),
                 'error_analysis': self._analyze_errors(session_lines),
                 'timeline': self._build_timeline(session_lines)
@@ -132,6 +161,9 @@ class LogParser:
             
             return details
         except Exception as e:
+            print(f"[ERROR] Failed to analyze session details: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return {'error': f'分析會話詳細信息時發生錯誤: {str(e)}'}
 
     def intelligent_thread_analysis(self, session_id: str = None) -> Dict[str, Any]:
@@ -186,43 +218,148 @@ class LogParser:
     def _analyze_basic_info(self, session_lines: List[tuple]) -> Dict[str, Any]:
         """分析基本會話信息"""
         info = {
-            'total_lines': len(session_lines),
-            'start_time': None,
-            'end_time': None,
-            'duration': None
+            'session_id': None,  # 只保留 session_id
         }
         
-        # 嘗試提取時間信息
-        if session_lines:
-            first_line = session_lines[0][1]
-            last_line = session_lines[-1][1]
-            
-            # 提取時間戳（如果存在）
-            timestamp_pattern = re.compile(r'\[(\d+)\]:\s*(\d+)ms')
-            
-            first_match = timestamp_pattern.search(first_line)
-            last_match = timestamp_pattern.search(last_line)
-            
-            if first_match and last_match:
-                start_ms = int(first_match.group(2))
-                end_ms = int(last_match.group(2))
-                info['start_time'] = start_ms
-                info['end_time'] = end_ms
-                info['duration'] = end_ms - start_ms
+        # 從行中提取 session_id
+        for line_num, line in session_lines:
+            match = self.session_id_pattern.search(line)
+            if match:
+                info['session_id'] = match.group(1)
+                break
         
         return info
+    
+    def _extract_recognition_config(self, session_lines: List[tuple]) -> Dict[str, Any]:
+        """提取識別配置信息"""
+        config = {
+            'audio': {},
+            'recognition': {},
+            'system': {}
+        }
+        
+        # 配置提取模式
+        config_patterns = {
+            # 音頻設置
+            'sample_rate': re.compile(r"name='AudioConfig_SampleRateForCapture';\s*value='(\d+)'"),
+            'bits_per_sample': re.compile(r"name='AudioConfig_BitsPerSampleForCapture';\s*value='(\d+)'"),
+            'channels': re.compile(r"name='AudioConfig_NumberOfChannelsForCapture';\s*value='(\d+)'"),
+            
+            # 識別設置
+            'reco_mode': re.compile(r"name='SPEECH-RecoMode';\s*value='(\w+)'"),
+            'reco_language': re.compile(r"name='SPEECH-RecoLanguage';\s*value='([^']+)'"),
+            'auto_detect_languages': re.compile(r"name='Auto-Detect-Source-Languages';\s*value='([^']+)'"),
+            'language_id_mode': re.compile(r"name='SPEECH-LanguageIdMode';\s*value='(\w+)'"),
+            'segmentation_timeout': re.compile(r"name='SPEECH-SegmentationSilenceTimeoutMs';\s*value='(\d+)'"),
+            
+            # 系統設置
+            'buffer_size': re.compile(r"name='SPEECH-MaxBufferSizeMs';\s*value='(\d+)'"),
+            'region': re.compile(r"name='SPEECH-Region';\s*value='([^']+)'"),
+            'connection_url': re.compile(r"name='SPEECH-ConnectionUrl';\s*value='([^']+)'"),
+            'user_agent': re.compile(r"name='HttpHeader#User-agent';\s*value='([^']+)'"),
+        }
+        
+        # 提取配置值
+        for line_num, line in session_lines:
+            # 音頻設置
+            if 'sample_rate' not in config['audio']:
+                match = config_patterns['sample_rate'].search(line)
+                if match:
+                    config['audio']['sample_rate'] = match.group(1)
+            
+            if 'bits_per_sample' not in config['audio']:
+                match = config_patterns['bits_per_sample'].search(line)
+                if match:
+                    config['audio']['bits_per_sample'] = match.group(1)
+            
+            if 'channels' not in config['audio']:
+                match = config_patterns['channels'].search(line)
+                if match:
+                    config['audio']['channels'] = match.group(1)
+            
+            # 識別設置
+            if 'mode' not in config['recognition']:
+                match = config_patterns['reco_mode'].search(line)
+                if match:
+                    config['recognition']['mode'] = match.group(1)
+            
+            if 'language' not in config['recognition']:
+                match = config_patterns['reco_language'].search(line)
+                if match:
+                    config['recognition']['language'] = match.group(1)
+            
+            if 'auto_detect_languages' not in config['recognition']:
+                match = config_patterns['auto_detect_languages'].search(line)
+                if match:
+                    config['recognition']['auto_detect_languages'] = match.group(1)
+            
+            if 'language_id_mode' not in config['recognition']:
+                match = config_patterns['language_id_mode'].search(line)
+                if match:
+                    config['recognition']['language_id_mode'] = match.group(1)
+            
+            if 'segmentation_timeout' not in config['recognition']:
+                match = config_patterns['segmentation_timeout'].search(line)
+                if match:
+                    config['recognition']['segmentation_timeout'] = match.group(1)
+            
+            # 系統設置
+            if 'buffer_size' not in config['system']:
+                match = config_patterns['buffer_size'].search(line)
+                if match:
+                    config['system']['buffer_size'] = match.group(1)
+            
+            if 'region' not in config['system']:
+                match = config_patterns['region'].search(line)
+                if match:
+                    config['system']['region'] = match.group(1)
+            
+            if 'connection_url' not in config['system']:
+                match = config_patterns['connection_url'].search(line)
+                if match:
+                    config['system']['connection_url'] = match.group(1)
+            
+            if 'user_agent' not in config['system']:
+                match = config_patterns['user_agent'].search(line)
+                if match:
+                    config['system']['user_agent'] = match.group(1)
+        
+        return config
 
     def _analyze_performance_metrics(self, session_lines: List[tuple]) -> Dict[str, Any]:
-        """分析效能指標"""
+        """分析效能指標（增強版）"""
         metrics = {
             'websocket_messages': 0,
             'audio_chunks': 0,
             'upload_rates': [],
             'recognition_latencies': [],
-            'queue_times': []
+            'queue_times': [],
+            'unacknowledged_audio_durations': [],
+            'frame_durations': [],
+            'websocket_connection_time': None,
+            'turn_start_latency': None,
+            'first_hypothesis_latency': None,
+            'first_recognition_service_latency': None  # 新增：首個識別服務延遲
         }
         
+        websocket_start_time = None
+        websocket_opened_time = None
+        first_recognition_latency_found = False  # 標記是否已找到第一個識別延遲
+        
         for line_num, line in session_lines:
+            # WebSocket 連接時間計算
+            if self.patterns['websocket_start'].search(line):
+                timestamp_match = re.search(r'\[(\d+)\]:\s*(\d+)ms', line)
+                if timestamp_match:
+                    websocket_start_time = int(timestamp_match.group(2))
+            
+            if self.patterns['websocket_opened'].search(line):
+                timestamp_match = re.search(r'\[(\d+)\]:\s*(\d+)ms', line)
+                if timestamp_match:
+                    websocket_opened_time = int(timestamp_match.group(2))
+                    if websocket_start_time is not None:
+                        metrics['websocket_connection_time'] = websocket_opened_time - websocket_start_time
+            
             # WebSocket 消息計數
             if self.patterns['websocket_send'].search(line):
                 metrics['websocket_messages'] += 1
@@ -236,23 +373,81 @@ class LogParser:
             if self.patterns['audio_chunk_received'].search(line):
                 metrics['audio_chunks'] += 1
             
+            # 未確認音頻持續時間
+            unack_match = self.patterns['unacknowledged_audio'].search(line)
+            if unack_match:
+                metrics['unacknowledged_audio_durations'].append(int(unack_match.group(1)))
+            
+            # 音頻幀持續時間
+            frame_match = self.patterns['read_frame_duration'].search(line)
+            if frame_match:
+                metrics['frame_durations'].append(int(frame_match.group(1)))
+            
             # 上傳速率
             upload_match = self.patterns['upload_rate'].search(line)
             if upload_match:
                 metrics['upload_rates'].append(float(upload_match.group(1)))
             
-            # 識別延遲
+            # Turn Start 延遲
+            if metrics['turn_start_latency'] is None:
+                turn_start_match = self.patterns['turn_start_ts'].search(line)
+                if turn_start_match:
+                    metrics['turn_start_latency'] = int(turn_start_match.group(1))
+            
+            # 首個假設延遲
+            if metrics['first_hypothesis_latency'] is None:
+                first_hyp_match = self.patterns['first_hypothesis_ts'].search(line)
+                if first_hyp_match:
+                    metrics['first_hypothesis_latency'] = int(first_hyp_match.group(1))
+            
+            # 識別延遲 - 提取第一個作為首個識別服務延遲
             latency_match = self.patterns['recognition_latency'].search(line)
             if latency_match:
-                metrics['recognition_latencies'].append(int(latency_match.group(1)))
+                latency_value = int(latency_match.group(1))
+                metrics['recognition_latencies'].append(latency_value)
+                # 只記錄第一個識別延遲作為服務延遲
+                if not first_recognition_latency_found:
+                    metrics['first_recognition_service_latency'] = latency_value
+                    first_recognition_latency_found = True
         
-        # 計算平均值
+        # 計算統計值
         if metrics['upload_rates']:
-            metrics['avg_upload_rate'] = sum(metrics['upload_rates']) / len(metrics['upload_rates'])
+            metrics['avg_upload_rate'] = round(sum(metrics['upload_rates']) / len(metrics['upload_rates']), 2)
+        
         if metrics['recognition_latencies']:
-            metrics['avg_recognition_latency'] = sum(metrics['recognition_latencies']) / len(metrics['recognition_latencies'])
+            metrics['avg_recognition_latency'] = round(sum(metrics['recognition_latencies']) / len(metrics['recognition_latencies']), 0)
+            metrics['min_recognition_latency'] = min(metrics['recognition_latencies'])
+            metrics['max_recognition_latency'] = max(metrics['recognition_latencies'])
+            
+            # 新增：建立延遲時間序列（用於繪圖）
+            metrics['latency_timeline'] = []
+            latency_index = 0
+            for line_num, line in session_lines:
+                latency_match = self.patterns['recognition_latency'].search(line)
+                if latency_match:
+                    latency_value = int(latency_match.group(1))
+                    # 提取時間戳
+                    timestamp_match = re.search(r'\[(\d+)\]:\s*(\d+)ms', line)
+                    timestamp = int(timestamp_match.group(2)) if timestamp_match else None
+                    
+                    metrics['latency_timeline'].append({
+                        'index': latency_index,
+                        'timestamp': timestamp,
+                        'latency': latency_value
+                    })
+                    latency_index += 1
+        
         if metrics['queue_times']:
-            metrics['avg_queue_time'] = sum(metrics['queue_times']) / len(metrics['queue_times'])
+            metrics['avg_queue_time'] = round(sum(metrics['queue_times']) / len(metrics['queue_times']), 0)
+            metrics['max_queue_time'] = max(metrics['queue_times'])
+        
+        if metrics['unacknowledged_audio_durations']:
+            metrics['max_unacknowledged_audio'] = max(metrics['unacknowledged_audio_durations'])
+        
+        if metrics['frame_durations']:
+            metrics['min_frame_duration'] = min(metrics['frame_durations'])
+            metrics['max_frame_duration'] = max(metrics['frame_durations'])
+            metrics['avg_frame_duration'] = round(sum(metrics['frame_durations']) / len(metrics['frame_durations']), 0)
         
         return metrics
 
@@ -263,12 +458,14 @@ class LogParser:
         for line_num, line in session_lines:
             # 檢查是否為語音識別結果
             if self.patterns['speech_phrase'].search(line) or self.patterns['speech_hypothesis'].search(line):
-                result = {'line_number': line_num}
-                
-                # 提取文本
+                # 提取文本 - 只有當行中包含 Text: 時才處理
                 text_match = self.patterns['recognition_text'].search(line)
-                if text_match:
-                    result['text'] = text_match.group(1).strip()
+                if not text_match:
+                    # 如果沒有文本，跳過這一行
+                    continue
+                
+                result = {'line_number': line_num}
+                result['text'] = text_match.group(1).strip()
                 
                 # 提取狀態
                 status_match = self.patterns['recognition_status'].search(line)
