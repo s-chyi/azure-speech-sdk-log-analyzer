@@ -73,17 +73,17 @@ def upload_file():
     """處理文件上傳"""
     try:
         if 'file' not in request.files:
-            return jsonify({'success': False, 'error': '沒有選擇檔案'}), 400
+            return jsonify({'success': False, 'error': 'No file selected'}), 400
         
         file = request.files['file']
         if file.filename == '':
-            return jsonify({'success': False, 'error': '檔案名稱為空'}), 400
+            return jsonify({'success': False, 'error': 'File name is empty'}), 400
 
         # 檢查檔案類型
         allowed_extensions = ['.txt', '.log']
         filename = file.filename
         if not any(filename.lower().endswith(ext) for ext in allowed_extensions):
-            return jsonify({'success': False, 'error': '只支援 .txt 和 .log 格式的檔案'}), 400
+            return jsonify({'success': False, 'error': 'Only .txt and .log file formats are supported'}), 400
 
         if file:
             # 確保上傳目錄存在
@@ -109,17 +109,17 @@ def upload_file():
                     'upload_time': datetime.now().isoformat()
                 })
             except Exception as e:
-                return jsonify({'success': False, 'error': f"解析檔案時發生錯誤: {str(e)}"}), 500
+                return jsonify({'success': False, 'error': f"Error parsing file: {str(e)}"}), 500
 
     except Exception as e:
-        return jsonify({'success': False, 'error': f"上傳檔案時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error uploading file: {str(e)}"}), 500
 
 @app.route('/session/<file_id>/<session_id>')
 def get_session_details(file_id, session_id):
     """獲取特定會話的詳細信息"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         details = parser.get_session_details(session_id)
@@ -133,14 +133,14 @@ def get_session_details(file_id, session_id):
         })
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"獲取會話詳細信息時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error retrieving session details: {str(e)}"}), 500
 
 @app.route('/session/<file_id>/<session_id>/threads')
 def get_session_threads(file_id, session_id):
     """獲取特定會話的線程分析"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         thread_analysis = parser.intelligent_thread_analysis(session_id)
@@ -154,14 +154,14 @@ def get_session_threads(file_id, session_id):
         })
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"獲取線程分析時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error retrieving thread analysis: {str(e)}"}), 500
 
 @app.route('/download/session/<file_id>/<session_id>')
 def download_session_log(file_id, session_id):
     """下載完整會話日誌"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         
@@ -169,7 +169,7 @@ def download_session_log(file_id, session_id):
         session_log_content = parser.get_session_log_content(session_id)
         
         if not session_log_content:
-            return jsonify({'success': False, 'error': '找不到該會話的日誌內容'}), 404
+            return jsonify({'success': False, 'error': 'Session log content not found'}), 404
         
         # 創建臨時檔案
         temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.log', encoding='utf-8')
@@ -187,14 +187,14 @@ def download_session_log(file_id, session_id):
         )
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"下載會話日誌時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error downloading session log: {str(e)}"}), 500
 
 @app.route('/download/thread/<file_id>/<session_id>/<thread_id>')
 def download_thread_log(file_id, session_id, thread_id):
     """下載特定線程的日誌"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         
@@ -202,7 +202,7 @@ def download_thread_log(file_id, session_id, thread_id):
         thread_log_content = parser.get_thread_log_content(thread_id)
         
         if not thread_log_content:
-            return jsonify({'success': False, 'error': f'找不到線程 {thread_id} 的日誌內容'}), 404
+            return jsonify({'success': False, 'error': f'Thread {thread_id} log content not found'}), 404
         
         # 獲取線程名稱
         thread_mapping = parser.get_all_session_threads(session_id)
@@ -228,14 +228,14 @@ def download_thread_log(file_id, session_id, thread_id):
         )
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"下載線程日誌時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error downloading thread log: {str(e)}"}), 500
 
 @app.route('/session/<file_id>/<session_id>/threads/list')
 def get_session_thread_list(file_id, session_id):
     """獲取會話的線程列表（用於下載選項）"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         thread_mapping = parser.get_all_session_threads(session_id)
@@ -257,14 +257,14 @@ def get_session_thread_list(file_id, session_id):
         })
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"獲取線程列表時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error retrieving thread list: {str(e)}"}), 500
 
 @app.route('/file/<file_id>/sessions')
 def get_file_sessions(file_id):
     """重新獲取檔案的會話列表"""
     try:
         if file_id not in log_cache:
-            return jsonify({'success': False, 'error': '檔案不存在或已過期'}), 404
+            return jsonify({'success': False, 'error': 'File not found or expired'}), 404
         
         parser = log_cache[file_id]
         sessions = parser.get_sessions_summary()
@@ -276,7 +276,7 @@ def get_file_sessions(file_id):
         })
     
     except Exception as e:
-        return jsonify({'success': False, 'error': f"重新載入會話列表時發生錯誤: {str(e)}"}), 500
+        return jsonify({'success': False, 'error': f"Error reloading session list: {str(e)}"}), 500
 
 @app.route('/health')
 def health_check():
@@ -290,17 +290,17 @@ def health_check():
 @app.errorhandler(413)
 def too_large(e):
     """檔案過大錯誤處理"""
-    return jsonify({'success': False, 'error': '檔案大小超過限制 (100MB)'}), 413
+    return jsonify({'success': False, 'error': 'File size exceeds limit (100MB)'}), 413
 
 @app.errorhandler(404)
 def not_found(e):
     """404 錯誤處理"""
-    return jsonify({'success': False, 'error': '請求的資源不存在'}), 404
+    return jsonify({'success': False, 'error': 'Requested resource not found'}), 404
 
 @app.errorhandler(500)
 def internal_error(e):
     """500 錯誤處理"""
-    return jsonify({'success': False, 'error': '伺服器內部錯誤'}), 500
+    return jsonify({'success': False, 'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

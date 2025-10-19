@@ -36,19 +36,19 @@ async function uploadFile(file) {
     const allowedExtensions = ['.txt', '.log'];
     const fileName = file.name.toLowerCase();
     if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
-        showError('只支援 .txt 和 .log 格式的檔案');
+        showError('Only .txt and .log file formats are supported');
         return;
     }
 
     // 檢查檔案大小 (100MB)
     if (file.size > 100 * 1024 * 1024) {
-        showError('檔案大小不能超過 100MB');
+        showError('File size cannot exceed 100MB');
         return;
     }
 
     uploadArea.style.display = 'none';
     uploadProgress.style.display = 'block';
-    progressText.textContent = '正在上傳和解析檔案...';
+    progressText.textContent = 'Uploading and parsing file...';
 
     const formData = new FormData();
     formData.append('file', file);
@@ -69,12 +69,12 @@ async function uploadFile(file) {
             renderSessions(data.filename);
             showSessionsList();
         } else {
-            showError(data.error || '上傳失敗');
+            showError(data.error || 'Upload failed');
         }
     } catch (error) {
         uploadProgress.style.display = 'none';
         uploadArea.style.display = 'block';
-        showError('網路錯誤或伺服器無回應');
+        showError('Network error or no response from server');
         console.error('Upload error:', error);
     }
 }
@@ -96,7 +96,7 @@ function renderSessions(filename) {
     
     const sessionsGrid = document.getElementById('sessionsGrid');
     if (!currentSessions || currentSessions.length === 0) {
-        sessionsGrid.innerHTML = '<div class="no-sessions"><p>未找到任何會話。</p></div>';
+        sessionsGrid.innerHTML = '<div class="no-sessions"><p>No sessions found.</p></div>';
         return;
     }
     
@@ -152,11 +152,11 @@ async function viewSessionDetails(sessionId) {
         if (detailsData.success && threadsData.success) {
             displaySessionDetails(sessionId, detailsData.session_details, threadsData.thread_analysis);
         } else {
-            showError(detailsData.error || threadsData.error || '無法載入會話詳情');
+            showError(detailsData.error || threadsData.error || 'Unable to load session details');
         }
     } catch (error) {
         hideLoading();
-        showError('載入會話詳情時發生網路錯誤');
+        showError('Network error occurred while loading session details');
         console.error('Session details error:', error);
     }
 }
@@ -210,7 +210,7 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
         
         <div class="detail-content">
             <div class="detail-grid">
-                <!-- 基本資訊 -->
+                <!-- Base Information -->
                 <div class="detail-card">
                     <h3><i class="fas fa-info-circle"></i> ${t('basicInfo')}</h3>
                     <div class="info-grid">
@@ -237,7 +237,7 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                     </div>
                 </div>
 
-                <!-- 效能指標 -->
+                <!-- Performance Metrics -->
                 <div class="detail-card">
                     <h3><i class="fas fa-tachometer-alt"></i> ${t('performanceMetrics')}</h3>
                     <div class="metrics-grid">
@@ -264,13 +264,13 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                     </div>
                 </div>
 
-                <!-- 線程分析 -->
+                <!-- Thread Analysis -->
                 <div class="detail-card full-width">
                     <h3><i class="fas fa-sitemap"></i> ${t('threadAnalysis')}</h3>
                     ${generateThreadsTable(threads)}
                 </div>
 
-                <!-- 識別結果 -->
+                <!-- Recognition Results -->
                 ${recognitionResults.length > 0 ? `
                 <div class="detail-card full-width">
                     <h3><i class="fas fa-microphone"></i> ${t('recognitionResults')} (${recognitionResults.length})</h3>
@@ -290,7 +290,7 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                 </div>
                 ` : ''}
 
-                <!-- 錯誤分析 -->
+                <!-- Error Analysis -->
                 ${errors.length > 0 ? `
                 <div class="detail-card full-width">
                     <h3><i class="fas fa-exclamation-triangle"></i> ${t('errorAnalysis')} (${errors.length})</h3>
@@ -306,7 +306,7 @@ function generateSessionDetailHTML(sessionId, sessionDetails, threadAnalysis) {
                 </div>
                 ` : ''}
 
-                <!-- 時間軸 -->
+                <!-- Timeline -->
                 ${timeline.length > 0 ? `
                 <div class="detail-card full-width">
                     <h3><i class="fas fa-clock"></i> ${t('timeline')}</h3>
@@ -387,7 +387,7 @@ function getEventDisplayName(eventType) {
 // 下載完整會話日誌
 async function downloadSessionLog(sessionId) {
     if (!currentFileId) {
-        showError('沒有可用的檔案');
+        showError('No file available');
         return;
     }
 
@@ -418,10 +418,10 @@ async function downloadSessionLog(sessionId) {
             document.body.removeChild(a);
         } else {
             const errorData = await response.json();
-            showError(errorData.error || '下載會話日誌失敗');
+            showError(errorData.error || 'Failed to download session log');
         }
     } catch (error) {
-        showError('下載會話日誌時發生網路錯誤');
+        showError('Network error occurred while downloading session log');
         console.error('Download session log error:', error);
     }
 }
@@ -429,7 +429,7 @@ async function downloadSessionLog(sessionId) {
 // 下載線程日誌
 async function downloadThreadLog(sessionId, threadId) {
     if (!currentFileId) {
-        showError('沒有可用的檔案');
+        showError('No file available');
         return;
     }
 
@@ -460,10 +460,10 @@ async function downloadThreadLog(sessionId, threadId) {
             document.body.removeChild(a);
         } else {
             const errorData = await response.json();
-            showError(errorData.error || '下載線程日誌失敗');
+            showError(errorData.error || 'Failed to download thread log');
         }
     } catch (error) {
-        showError('下載線程日誌時發生網路錯誤');
+        showError('Network error occurred while downloading thread log');
         console.error('Download thread log error:', error);
     }
 }
@@ -609,7 +609,7 @@ function backToUpload() {
 }
 
 // 顯示載入遮罩
-function showLoading(message = '載入中...') {
+function showLoading(message = 'Loading...') {
     let overlay = document.getElementById('loadingOverlay');
     if (!overlay) {
         overlay = document.createElement('div');
@@ -638,36 +638,36 @@ function hideLoading() {
 // 錯誤解決方案映射
 const ERROR_SOLUTIONS = {
     'Connection refused': {
-        title: '無法連接到服務',
-        solution: '請確認 app.py 正在運行。建議：重新運行 start.bat'
+        title: 'Unable to connect to service',
+        solution: 'Please ensure app.py is running. Suggested: Restart start.bat'
     },
     'File too large': {
-        title: '檔案過大',
-        solution: '檔案超過 100MB 限制。建議：分割日誌檔案後再上傳'
+        title: 'File too large',
+        solution: 'File exceeds 100MB limit. Suggested: Split log file and upload again'
     },
     'Invalid format': {
-        title: '檔案格式不正確',
-        solution: '請確認這是 Azure Speech SDK 的日誌檔案'
+        title: 'Invalid file format',
+        solution: 'Please ensure this is an Azure Speech SDK log file'
     },
     'Network error': {
-        title: '網路錯誤',
-        solution: '請檢查網路連接或防火牆設定'
+        title: 'Network error',
+        solution: 'Please check your network connection or firewall settings'
     },
-    '找不到會話': {
-        title: '會話不存在',
-        solution: '檔案可能已被清理。建議：重新上傳日誌檔案'
+    'Session not found': {
+        title: 'Session not found',
+        solution: 'File may have been cleaned up. Suggested: Re-upload log file'
     },
-    '檔案不存在或已過期': {
-        title: '檔案已過期',
-        solution: '緩存已清理。建議：重新上傳日誌檔案'
+    'File not found or expired': {
+        title: 'File expired',
+        solution: 'Cache has been cleared. Suggested: Re-upload log file'
     },
-    '無法連接': {
-        title: '連接失敗',
-        solution: '請確認服務正在運行，或重新啟動 start.bat'
+    'Connection failed': {
+        title: 'Connection failed',
+        solution: 'Please ensure the service is running, or restart start.bat'
     },
-    '網路錯誤': {
-        title: '網路問題',
-        solution: '請檢查網路連接或稍後再試'
+    'Network error': {
+        title: 'Network error',
+        solution: 'Please check your network connection or try again later'
     }
 };
 
@@ -686,7 +686,7 @@ function showError(message) {
                 <strong style="color: #ff6b6b;">${info.title}</strong><br>
                 <span style="color: #e0e0e0;">${message}</span><br>
                 <small style="color: #ffc107; margin-top: 8px; display: block;">
-                    💡 <strong>解決方案：</strong>${info.solution}
+                    💡 <strong>Solution:</strong>${info.solution}
                 </small>
             `;
             foundSolution = true;
@@ -697,7 +697,7 @@ function showError(message) {
     // 如果沒有找到特定解決方案，使用預設格式
     if (!foundSolution) {
         displayMessage = `
-            <strong style="color: #ff6b6b;">發生錯誤</strong><br>
+            <strong style="color: #ff6b6b;">Error</strong><br>
             <span style="color: #e0e0e0;">${message}</span>
         `;
     }

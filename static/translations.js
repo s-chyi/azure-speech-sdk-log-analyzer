@@ -331,12 +331,12 @@ const translations = {
 // 获取翻译文本
 function t(key, lang = null) {
     const currentLang = lang || getCurrentLanguage();
-    return translations[currentLang]?.[key] || translations['zh-TW'][key] || key;
+    return translations[currentLang]?.[key] || translations['en'][key] || key;
 }
 
 // 获取当前语言
 function getCurrentLanguage() {
-    return localStorage.getItem('language') || 'zh-TW';
+    return localStorage.getItem('language') || 'en';
 }
 
 // 设置语言
