@@ -1017,7 +1017,7 @@ function generateEnhancedMetrics(metrics) {
             
             <!-- 右下：潛在問題指標 -->
             <div class="metric-category metric-category-warning">
-                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ Critical Diagnostic Metrics</h4>
+                <h4><i class="fas fa-exclamation-triangle"></i> Critical Diagnostic Metrics</h4>
                 <div class="metric-list">
                     ${createMetricWithTooltip(
                         'maxUnacknowledgedAudio',

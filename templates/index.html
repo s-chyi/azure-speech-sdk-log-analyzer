@@ -70,8 +70,8 @@
         </div>
         
         <header class="header">
-            <h1><i class="fas fa-chart-line"></i> <span data-i18n="title">SDK日誌分析器</span></h1>
-            <p data-i18n="subtitle">上傳Azure Speech SDK日誌文件，進行基本分析</p>
+            <h1><i class="fas fa-chart-line"></i> <span data-i18n="title">SDK Log Analyzer</span></h1>
+            <p data-i18n="subtitle">Upload Azure Speech SDK log files for basic analysis</p>
         </header>
 
         <!-- 主要內容區域 -->
@@ -81,9 +81,9 @@
             <div class="upload-section" id="uploadSection">
                 <div class="upload-area" id="uploadArea">
                     <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                    <h3 data-i18n="uploadTitle">拖放日誌文件到此處</h3>
-                    <p><span data-i18n="uploadOr">或</span> <button class="btn-link" onclick="document.getElementById('fileInput').click()"><span data-i18n="uploadClick">點擊選擇文件</span></button></p>
-                    <p class="upload-hint" data-i18n="uploadHint">支援 .txt 和 .log 格式</p>
+                    <h3 data-i18n="uploadTitle">Drag and drop log file here</h3>
+                    <p><span data-i18n="uploadOr">or</span> <button class="btn-link" onclick="document.getElementById('fileInput').click()"><span data-i18n="uploadClick">Click to select file</span></button></p>
+                    <p class="upload-hint" data-i18n="uploadHint">Supports .txt and .log formats</p>
                     <input type="file" id="fileInput" accept=".txt,.log" style="display: none;">
                 </div>
                 
@@ -91,19 +91,19 @@
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
-                    <p id="progressText" data-i18n="uploading">正在上傳...</p>
+                    <p id="progressText" data-i18n="uploading">Uploading...</p>
                 </div>
             </div>
 
             <!-- 會話列表區域 -->
             <div class="sessions-section" id="sessionsSection" style="display: none;">
                 <div class="section-header">
-                    <h2><i class="fas fa-list"></i> <span data-i18n="sessionsTitle">檢測到的會話</span></h2>
+                    <h2><i class="fas fa-list"></i> <span data-i18n="sessionsTitle">Detected Sessions</span></h2>
                     <button class="btn-secondary" onclick="backToUpload()">
-                        <i class="fas fa-arrow-left"></i> <span data-i18n="backButton">返回</span>
+                        <i class="fas fa-arrow-left"></i> <span data-i18n="backButton">Back</span>
                     </button>
                 </div>
-                <p><span data-i18n="sessionsFile">文件</span>: <strong id="sessionsFilename"></strong></p>
+                <p><span data-i18n="sessionsFile">File</span>: <strong id="sessionsFilename"></strong></p>
                 <div class="sessions-grid" id="sessionsGrid">
                     <!-- 會話卡片將在此處動態生成 -->
                 </div>
