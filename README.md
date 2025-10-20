@@ -226,7 +226,7 @@ Issues and Pull Requests are welcome!
 
 **Author**: Nick Shieh  
 **Email**: nickshieh@microsoft.com  
-**Version**: 1.1.0  
+**Version**: 1.1.1  
 **License**: MIT License
 
 ---
@@ -237,4 +237,4 @@ Thanks to all developers who use and contribute to this project!
 
 ---
 
-**Last Updated**: 2025-10-19
+**Last Updated**: 2025-10-20

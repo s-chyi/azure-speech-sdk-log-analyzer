@@ -631,54 +631,99 @@ class LogParser:
         return main_thread
     
     def _find_main_thread_by_memory_address(self, lines: List[str], background_thread_id: str, kickoff_line_num: int) -> Dict[str, Any]:
-        """通過記憶體地址找主線程（改進版本）"""
-        get_string_pattern = re.compile(
-            r'^\[(\d+)\]:.*?named_properties\.h:479 ISpxNamedProperties::GetStringValue: this=(0x[0-9a-fA-F]+)', re.IGNORECASE)
+        """通過記憶體地址找主線程（修正版本）
         
-        # 找到背景線程使用的記憶體地址，並確保時間接近
+        邏輯：
+        1. 在 background thread 中找到 named_properties.h:479 ISpxNamedProperties::GetStringValue: this=0x...; name='SPEECH-Region'
+        2. 提取記憶體地址
+        3. 在整個日誌中找到這個記憶體地址第一次出現的地方
+        4. 那一行的 thread id 就是 main thread
+        """
+        # 模式：提取 background thread 中帶有 SPEECH-Region 的 GetStringValue 記憶體地址
+        # 匹配格式如：this=0x0x007f9b94183400; name='SPEECH-Region'
+        get_string_pattern = re.compile(
+            r"named_properties\.h:479\s+ISpxNamedProperties::GetStringValue:\s+this=(0x(?:0x)?[0-9a-fA-F]+).*?name='SPEECH-Region'", 
+            re.IGNORECASE
+        )
+        
+        thread_id_pattern = re.compile(r'^\[(\d+)\]:', re.IGNORECASE)
+        
+        # 步驟1: 在 background thread 中找到帶有 SPEECH-Region 的 GetStringValue 記憶體地址
         background_memory_addresses = []
-        timestamp_pattern = re.compile(r'^\[(\d+)\]:\s*(\d+)ms', re.IGNORECASE)
         
         for line_num, line in enumerate(lines, 1):
+            # 確保這一行屬於 background thread
             if f'[{background_thread_id}]' in line:
                 match = get_string_pattern.search(line)
                 if match:
-                    thread_id = match.group(1)
-                    memory_addr = match.group(2)
-                    time_match = timestamp_pattern.search(line)
-                    if time_match:
-                        timestamp = int(time_match.group(2))
-                        background_memory_addresses.append((memory_addr, timestamp, line_num))
+                    memory_addr = match.group(1)
+                    background_memory_addresses.append((memory_addr, line_num))
+                    print(f"[DEBUG] 在 background thread [{background_thread_id}] 第 {line_num} 行找到 SPEECH-Region 記憶體地址: {memory_addr}")
         
-        # 對每個記憶體地址，找到最接近時間的使用
-        for memory_addr, bg_timestamp, bg_line_num in background_memory_addresses:
-            set_string_pattern = re.compile(
-                rf'^\[(\d+)\]:.*?this={re.escape(memory_addr)}', re.IGNORECASE)
+        if not background_memory_addresses:
+            print(f"[DEBUG] 在 background thread [{background_thread_id}] 中未找到 SPEECH-Region 的 GetStringValue 記憶體地址")
+            return None
+        
+        # 步驟2: 對每個記憶體地址，在整個日誌中找到第一次出現的位置
+        for memory_addr, bg_line_num in background_memory_addresses:
+            # 建立多種可能的記憶體地址格式來匹配
+            # 處理 0x0x 和 0x 兩種格式
+            addr_patterns = set()
             
-            candidates = []
+            # 原始格式
+            addr_patterns.add(memory_addr)
+            addr_patterns.add(memory_addr.lower())
+            addr_patterns.add(memory_addr.upper())
+            
+            # 如果是 0x0x 格式，也嘗試 0x 格式
+            if '0x0x' in memory_addr.lower():
+                simple_addr = memory_addr.replace('0x0x', '0x', 1).replace('0X0X', '0X', 1)
+                addr_patterns.add(simple_addr)
+                addr_patterns.add(simple_addr.lower())
+                addr_patterns.add(simple_addr.upper())
+            # 如果是 0x 格式，也嘗試 0x0x 格式
+            elif memory_addr.lower().startswith('0x') and not memory_addr.lower().startswith('0x0x'):
+                double_addr = memory_addr.replace('0x', '0x0x', 1).replace('0X', '0X0X', 1)
+                addr_patterns.add(double_addr)
+                addr_patterns.add(double_addr.lower())
+                addr_patterns.add(double_addr.upper())
+            
+            first_occurrence = None
+            first_line_num = float('inf')
+            
             for line_num, line in enumerate(lines, 1):
-                match = set_string_pattern.search(line)
-                if match and line_num != bg_line_num:  # 不是背景線程本身
-                    thread_id = match.group(1)
-                    time_match = timestamp_pattern.search(line)
-                    if time_match:
-                        timestamp = int(time_match.group(2))
-                        time_diff = abs(timestamp - bg_timestamp)
-                        candidates.append((thread_id, time_diff, line_num, line.strip()))
-            
-            # 選擇時間最接近的候選者
-            if candidates:
-                candidates.sort(key=lambda x: x[1])  # 按時間差排序
-                best_candidate = candidates[0]
+                # 跳過 background thread 自己的行
+                if line_num == bg_line_num:
+                    continue
                 
-                # 確保時間差在合理範圍內（10秒內）
-                if best_candidate[1] <= 10000:
-                    return {
-                        'thread_id': best_candidate[0],
-                        'line_num': best_candidate[2],
-                        'raw_line': best_candidate[3]
-                    }
+                # 檢查這一行是否包含該記憶體地址
+                line_contains_addr = False
+                for addr_pattern in addr_patterns:
+                    if addr_pattern in line:
+                        line_contains_addr = True
+                        break
+                
+                if line_contains_addr and line_num < first_line_num:
+                    # 提取 thread id
+                    thread_match = thread_id_pattern.search(line.strip())
+                    if thread_match:
+                        thread_id = thread_match.group(1)
+                        # 確保不是 background thread 本身
+                        if thread_id != background_thread_id:
+                            first_occurrence = {
+                                'thread_id': thread_id,
+                                'line_num': line_num,
+                                'raw_line': line.strip()
+                            }
+                            first_line_num = line_num
+                            print(f"[DEBUG] 記憶體地址 {memory_addr} 第一次出現在第 {line_num} 行，thread id: {thread_id}")
+            
+            # 如果找到第一次出現，返回該 thread 作為 main thread
+            if first_occurrence:
+                print(f"[DEBUG] 確定 main thread: {first_occurrence['thread_id']}")
+                return first_occurrence
         
+        print(f"[DEBUG] 未找到記憶體地址的第一次出現")
         return None
     
     def _find_main_thread_by_proximity(self, lines: List[str], background_thread_id: str, kickoff_line_num: int) -> Dict[str, Any]:
