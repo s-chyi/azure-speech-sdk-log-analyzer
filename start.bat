@@ -4,7 +4,7 @@ chcp 65001 >nul
 title Azure SDK Log Analyzer
 
 echo ========================================
-echo   Azure SDK Log Analyzer v1.0.0
+echo   Azure SDK Log Analyzer v1.1.2
 echo ========================================
 echo.
 
@@ -102,9 +102,26 @@ if "%PYTHON_ENV%"=="system" (
 )
 
 :install_deps
-REM Step 3: Check and install dependencies
+REM Step 3: Ensure uploads directory exists with correct permissions
 echo.
-echo [4/5] Checking dependencies...
+echo [4/5] Ensuring uploads directory...
+
+REM Create uploads directory if it doesn't exist
+REM Using Python ensures correct permissions inheritance
+if not exist "uploads\" (
+    echo   Creating uploads directory...
+    python -c "import os; os.makedirs('uploads', exist_ok=True)" 2>nul
+    if errorlevel 1 (
+        mkdir uploads 2>nul
+    )
+    echo ✓ uploads directory created
+) else (
+    echo ✓ uploads directory exists
+)
+echo.
+
+REM Step 4: Check and install dependencies
+echo [5/5] Checking dependencies...
 
 python -c "import flask" >nul 2>&1
 if errorlevel 1 (
@@ -121,9 +138,9 @@ if errorlevel 1 (
 )
 echo.
 
-REM Step 4: Clean old data
+REM Step 5: Clean old data
 echo.
-echo [5/5] Cleaning old data...
+echo [6/6] Cleaning old data...
 if exist "uploads\*.*" (
     del /q uploads\*.* 2>nul
     echo ✓ Cleaned previous uploaded files

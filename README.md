@@ -205,6 +205,27 @@ A: Currently primarily supports Windows 10+. Mac/Linux users can manually run `p
 ### Q: How to generate Azure Speech SDK logs?
 A: Please refer to the [official documentation](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-use-logging?pivots=programming-language-python) to learn how to enable logging.
 
+### Q: Getting "Permission denied" error when uploading files?
+A: This usually occurs when the `uploads` folder doesn't exist or has incorrect permissions. Solutions:
+
+**Recommended Solution** (Easiest):
+- Run `start.bat` - it automatically creates the folder with correct permissions
+
+**Manual Solutions**:
+1. Ensure the `uploads` folder exists in the project root directory
+2. Right-click the `uploads` folder → Properties → Security tab
+3. Ensure your user account has "Modify" and "Write" permissions
+4. If the error persists:
+   - Close any programs that might be using the log files
+   - Try running as administrator
+   - Ensure the project is not in a protected directory (e.g., Program Files, System folders)
+   - Check if antivirus software is blocking file operations
+
+**Why does this happen?**
+- Git doesn't track empty folders, so users cloning from GitHub won't have the `uploads` folder
+- Manually created folders might have incorrect permission inheritance
+- The latest version automatically handles this via `start.bat`
+
 ## Development & Contribution
 
 Issues and Pull Requests are welcome!

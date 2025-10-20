@@ -86,12 +86,32 @@ def upload_file():
             return jsonify({'success': False, 'error': 'Only .txt and .log file formats are supported'}), 400
 
         if file:
-            # 確保上傳目錄存在
-            if not os.path.exists(app.config['UPLOAD_FOLDER']):
-                os.makedirs(app.config['UPLOAD_FOLDER'])
+            # 確保上傳目錄存在並具有正確權限
+            try:
+                if not os.path.exists(app.config['UPLOAD_FOLDER']):
+                    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    print(f"[上傳] 已建立 uploads 目錄")
+            except Exception as e:
+                return jsonify({
+                    'success': False, 
+                    'error': f"Unable to create uploads directory: {str(e)}\n\nPlease check directory permissions or run start.bat to initialize the project."
+                }), 500
                 
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+            
+            # 嘗試儲存檔案
+            try:
+                file.save(filepath)
+            except PermissionError as e:
+                return jsonify({
+                    'success': False,
+                    'error': f"Permission denied when saving file.\n\nPossible solutions:\n1. Close any programs that might be using the file\n2. Check folder permissions (Right-click uploads folder → Properties → Security)\n3. Try running the program as administrator\n4. Ensure the project is not in a protected directory (e.g., Program Files)\n\nTechnical details: {str(e)}"
+                }), 500
+            except Exception as e:
+                return jsonify({
+                    'success': False,
+                    'error': f"Error saving file: {str(e)}"
+                }), 500
 
             # 使用檔案名作為簡單的ID
             file_id = filename
