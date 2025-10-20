@@ -6,6 +6,45 @@
 
 ---
 
+## [1.2.0] - 2025-10-20
+
+### 🎨 使用者介面改進
+
+#### 指標名稱標準化
+- 🔧 **統一指標名稱為日誌原始名稱**：所有指標在各語言版本中均使用與日誌相同的英文名稱
+  - 將所有指標名稱改為日誌欄位原始名稱（如 `unacknowledgedAudioDuration`、`RecognitionLatencyMs`、`TimeInQueue` 等）
+  - 保留 tooltip 中的多語言說明，幫助使用者理解指標含義
+  - 方便使用者直接對照日誌進行問題分析和排查
+
+#### 國際化改進
+- 🌐 **修正英文介面中文殘留問題**：移除所有硬編碼中文文字
+  - 修正圖表中的硬編碼中文（註釋、閾值標籤、座標軸等）
+  - 統一使用翻譯系統或英文標籤
+  - 改進「關鍵診斷指標」為 "Critical Diagnostic Metrics"
+
+### 🎯 影響範圍
+
+- **指標對照**：使用者可直接以指標名稱搜尋日誌，提升問題排查效率
+- **多語言一致性**：所有語言版本的指標名稱統一，避免混淆
+- **國際化完整性**：英文介面不再出現中文字元
+
+### 📁 檔案變更
+
+**修改**：
+- `static/translations.js` - 統一三種語言的指標名稱為日誌原始英文名稱
+- `static/script.js` - 移除硬編碼中文，使用翻譯系統或英文
+- `config.py` - 版本號更新至 1.2.0
+
+### 🔍 技術細節
+
+**指標名稱範例**：
+- 連接指標：`WebSocket Connection Time`、`turn.start Latency`
+- 音頻處理：`unacknowledgedAudioDuration (max)`、`frame duration (avg)`、`TimeInQueue (max)`
+- 識別效能：`first hypothesis latency`、`RecognitionLatencyMs (first/avg/range)`
+- 上傳效能：`upload rate (avg)`
+
+---
+
 ## [1.1.2] - 2025-10-20
 
 ### 🐛 重要修復

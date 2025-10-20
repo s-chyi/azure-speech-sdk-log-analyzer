@@ -207,11 +207,11 @@ function renderLatencyChart(latencyTimeline) {
     const labels = latencyTimeline.map(item => `#${item.index + 1}`);
     const data = latencyTimeline.map(item => item.latency);
     
-    // 根據閾值標記顏色
+    // Color coding based on thresholds
     const backgroundColors = data.map(value => {
-        if (value > 5000) return 'rgba(220, 53, 69, 0.6)';      // 紅色：異常
-        if (value > 2000) return 'rgba(255, 193, 7, 0.6)';      // 黃色：警告
-        return 'rgba(40, 167, 69, 0.6)';                         // 綠色：正常
+        if (value > 5000) return 'rgba(220, 53, 69, 0.6)';      // Red: Critical
+        if (value > 2000) return 'rgba(255, 193, 7, 0.6)';      // Yellow: Warning
+        return 'rgba(40, 167, 69, 0.6)';                         // Green: Normal
     });
     
     const borderColors = data.map(value => {
@@ -256,10 +256,11 @@ function renderLatencyChart(latencyTimeline) {
                     callbacks: {
                         label: function(context) {
                             const item = latencyTimeline[context.dataIndex];
+                            const status = context.parsed.y > 5000 ? t('statusCritical') : context.parsed.y > 2000 ? t('statusWarning') : t('statusNormal');
                             return [
-                                `延遲: ${context.parsed.y} ms`,
-                                `時間戳: ${item.timestamp} ms`,
-                                `狀態: ${context.parsed.y > 5000 ? '異常' : context.parsed.y > 2000 ? '警告' : '正常'}`
+                                `${t('recognitionLatency')}: ${context.parsed.y} ms`,
+                                `Timestamp: ${item.timestamp} ms`,
+                                `Status: ${status}`
                             ];
                         }
                     }
@@ -274,7 +275,7 @@ function renderLatencyChart(latencyTimeline) {
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
-                                content: '警告閾值 (2000ms)',
+                                content: `${t('statusWarning')} Threshold (2000ms)`,
                                 enabled: true,
                                 position: 'end'
                             }
@@ -287,7 +288,7 @@ function renderLatencyChart(latencyTimeline) {
                             borderWidth: 2,
                             borderDash: [5, 5],
                             label: {
-                                content: '異常閾值 (5000ms)',
+                                content: `${t('statusCritical')} Threshold (5000ms)`,
                                 enabled: true,
                                 position: 'end'
                             }
@@ -300,7 +301,7 @@ function renderLatencyChart(latencyTimeline) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: '延遲時間 (ms)'
+                        text: `${t('recognitionLatency')}`
                     },
                     ticks: {
                         callback: function(value) {
@@ -311,7 +312,7 @@ function renderLatencyChart(latencyTimeline) {
                 x: {
                     title: {
                         display: true,
-                        text: '識別順序'
+                        text: 'Recognition Sequence'
                     }
                 }
             }
@@ -1016,7 +1017,7 @@ function generateEnhancedMetrics(metrics) {
             
             <!-- 右下：潛在問題指標 -->
             <div class="metric-category metric-category-warning">
-                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ 關鍵診斷指標</h4>
+                <h4><i class="fas fa-exclamation-triangle"></i> ⚠️ Critical Diagnostic Metrics</h4>
                 <div class="metric-list">
                     ${createMetricWithTooltip(
                         'maxUnacknowledgedAudio',

@@ -226,7 +226,7 @@ A: 請參考 [官方文檔](https://learn.microsoft.com/en-us/azure/ai-services/
 
 **作者**: Nick Shieh  
 **Email**: nickshieh@microsoft.com  
-**版本**: 1.1.1  
+**版本**: 1.2.0  
 **許可證**: MIT License
 
 ---

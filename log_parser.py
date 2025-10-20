@@ -129,19 +129,19 @@ class LogParser:
             if not session_lines:
                 return {'error': f'找不到會話 {session_id} 的詳細信息'}
             
-            print(f"[DEBUG] Extracted {len(session_lines)} lines for session {session_id}")
+            # print(f"[DEBUG] Extracted {len(session_lines)} lines for session {session_id}")
             
             # 分析會話詳細信息
             perf_metrics = self._analyze_performance_metrics(session_lines)
             
-            # 調試日誌：打印提取的指標
-            print(f"[DEBUG] Session {session_id} metrics:")
-            print(f"  - websocket_messages: {perf_metrics.get('websocket_messages', 'N/A')}")
-            print(f"  - audio_chunks: {perf_metrics.get('audio_chunks', 'N/A')}")
-            print(f"  - websocket_connection_time: {perf_metrics.get('websocket_connection_time', 'N/A')}")
-            print(f"  - turn_start_latency: {perf_metrics.get('turn_start_latency', 'N/A')}")
-            print(f"  - first_hypothesis_latency: {perf_metrics.get('first_hypothesis_latency', 'N/A')}")
-            print(f"  - max_unacknowledged_audio: {perf_metrics.get('max_unacknowledged_audio', 'N/A')}")
+            # 調試日誌：打印提取的指標（已註解，減少終端輸出）
+            # print(f"[DEBUG] Session {session_id} metrics:")
+            # print(f"  - websocket_messages: {perf_metrics.get('websocket_messages', 'N/A')}")
+            # print(f"  - audio_chunks: {perf_metrics.get('audio_chunks', 'N/A')}")
+            # print(f"  - websocket_connection_time: {perf_metrics.get('websocket_connection_time', 'N/A')}")
+            # print(f"  - turn_start_latency: {perf_metrics.get('turn_start_latency', 'N/A')}")
+            # print(f"  - first_hypothesis_latency: {perf_metrics.get('first_hypothesis_latency', 'N/A')}")
+            # print(f"  - max_unacknowledged_audio: {perf_metrics.get('max_unacknowledged_audio', 'N/A')}")
             
             # 使用簡單方式獲取基本資訊（從包含 SessionId 的行）
             simple_session_lines = self._extract_session_lines(session_id)
@@ -658,10 +658,10 @@ class LogParser:
                 if match:
                     memory_addr = match.group(1)
                     background_memory_addresses.append((memory_addr, line_num))
-                    print(f"[DEBUG] 在 background thread [{background_thread_id}] 第 {line_num} 行找到 SPEECH-Region 記憶體地址: {memory_addr}")
+                    # print(f"[DEBUG] 在 background thread [{background_thread_id}] 第 {line_num} 行找到 SPEECH-Region 記憶體地址: {memory_addr}")
         
         if not background_memory_addresses:
-            print(f"[DEBUG] 在 background thread [{background_thread_id}] 中未找到 SPEECH-Region 的 GetStringValue 記憶體地址")
+            # print(f"[DEBUG] 在 background thread [{background_thread_id}] 中未找到 SPEECH-Region 的 GetStringValue 記憶體地址")
             return None
         
         # 步驟2: 對每個記憶體地址，在整個日誌中找到第一次出現的位置
@@ -716,14 +716,14 @@ class LogParser:
                                 'raw_line': line.strip()
                             }
                             first_line_num = line_num
-                            print(f"[DEBUG] 記憶體地址 {memory_addr} 第一次出現在第 {line_num} 行，thread id: {thread_id}")
+                            # print(f"[DEBUG] 記憶體地址 {memory_addr} 第一次出現在第 {line_num} 行，thread id: {thread_id}")
             
             # 如果找到第一次出現，返回該 thread 作為 main thread
             if first_occurrence:
-                print(f"[DEBUG] 確定 main thread: {first_occurrence['thread_id']}")
+                # print(f"[DEBUG] 確定 main thread: {first_occurrence['thread_id']}")
                 return first_occurrence
         
-        print(f"[DEBUG] 未找到記憶體地址的第一次出現")
+        # print(f"[DEBUG] 未找到記憶體地址的第一次出現")
         return None
     
     def _find_main_thread_by_proximity(self, lines: List[str], background_thread_id: str, kickoff_line_num: int) -> Dict[str, Any]:
